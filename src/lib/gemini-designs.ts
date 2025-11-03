@@ -26,11 +26,12 @@ Return only a JSON array of ${count} designs. Each design object must have:
   "layout": "layout type (split, centered, left-aligned)",
   "decoration": "decoration type (circles, lines, shapes, none)",
   "fontWeight": "font weight (normal, bold, light)",
+  "fontFamily": "font family (Arial, Helvetica, Times New Roman, Georgia, Verdana, etc)",
   "borderStyle": "border style (none, solid, dashed, rounded)"
 }
 
 Make designs diverse including: modern, vintage, minimal, bold, elegant, playful, professional, creative styles.
-Use valid hex color codes for all colors.`;
+Use valid hex color codes for all colors and common web font families.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;

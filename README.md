@@ -36,6 +36,31 @@ npm i
 npm run dev
 ```
 
+## Running locally without Supabase (frontend-only)
+
+This project can run purely as a frontend application using the Hugging Face Inference API for AI-generated designs. No Supabase backend is required for the core generation flow.
+
+Steps:
+
+1. Create a `.env` file in the project root (if it doesn't exist) and add your Hugging Face token:
+
+```env
+VITE_HUGGING_FACE_API_KEY="your-hf-token-here"
+```
+
+2. Install dependencies and start the dev server:
+
+```powershell
+npm install
+npm run dev
+```
+
+3. Open the app in your browser (Vite will print the local URL). Use the UI to enter business card info and generate AI designs.
+
+Notes:
+- The repo still contains a `supabase/` folder and optional Supabase integration under `src/integrations/supabase/`. These are legacy and can be removed if you don't plan to use Supabase.
+- If you hit API limits, consider reducing the `count` parameter or adding client-side retries/backoff.
+
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).

@@ -14,6 +14,8 @@ interface DynamicCardProps {
     layout: string;
     decoration: string;
     fontWeight: string;
+    fontFamily: string;
+    fontSize?: number;
     borderStyle: string;
   };
 }
@@ -86,6 +88,8 @@ END:VCARD`;
       style={{
         ...getBgStyle(),
         color: designConfig.textColor,
+        fontFamily: designConfig.fontFamily,
+        fontSize: designConfig.fontSize ? `${designConfig.fontSize}px` : '16px',
       }}
     >
       {getDecoration()}

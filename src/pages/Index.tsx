@@ -3,6 +3,8 @@ import { Hero } from "@/components/Hero";
 import { BusinessCardForm, BusinessCardData } from "@/components/BusinessCardForm";
 import { TemplateSelector } from "@/components/TemplateSelector";
 import { AITemplateGallery } from "@/components/AITemplateGallery";
+import { FontSelector } from "@/components/FontSelector";
+import { CustomizationPanel } from "@/components/CustomizationPanel";
 import { DynamicCard } from "@/components/templates/DynamicCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -18,6 +20,10 @@ const Index = () => {
   });
 
   const [selectedDesign, setSelectedDesign] = useState<any>(null);
+  const [selectedFont, setSelectedFont] = useState<string>("Arial, sans-serif");
+  const [fontSize, setFontSize] = useState<number>(16);
+  const [textColor, setTextColor] = useState<string>("#000000");
+  const [accentColor, setAccentColor] = useState<string>("#0ea5e9");
 
   return (
     <div className="min-h-screen bg-background">
@@ -31,12 +37,36 @@ const Index = () => {
           
           <div>
             {selectedDesign ? (
-              <div className="bg-card rounded-xl p-6 shadow-[var(--shadow-card)] border border-border animate-scale-in">
-                <h2 className="text-2xl font-bold mb-4 text-foreground">Selected Design Preview</h2>
-                <div className="bg-gradient-to-br from-muted to-background p-8 rounded-lg">
-                  <div className="max-w-md mx-auto">
-                    <DynamicCard data={businessData} designConfig={selectedDesign} />
+              <div className="space-y-6">
+                <div className="bg-card rounded-xl p-6 shadow-[var(--shadow-card)] border border-border animate-scale-in">
+                  <h2 className="text-2xl font-bold mb-4 text-foreground">Selected Design Preview</h2>
+                  <div className="bg-gradient-to-br from-muted to-background p-8 rounded-lg">
+                    <div className="max-w-md mx-auto">
+                      <DynamicCard
+                        data={businessData}
+                        designConfig={{
+                          ...selectedDesign,
+                          fontFamily: selectedFont,
+                          fontSize,
+                          textColor,
+                          accentColor
+                        }}
+                      />
+                    </div>
                   </div>
+                </div>
+
+                <div className="bg-card rounded-xl p-6 shadow-[var(--shadow-card)] border border-border animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+                  <CustomizationPanel
+                    selectedFont={selectedFont}
+                    onFontSelect={setSelectedFont}
+                    fontSize={fontSize}
+                    onFontSizeChange={setFontSize}
+                    textColor={textColor}
+                    onTextColorChange={setTextColor}
+                    accentColor={accentColor}
+                    onAccentColorChange={setAccentColor}
+                  />
                 </div>
               </div>
             ) : (
@@ -64,7 +94,13 @@ const Index = () => {
             
             <TabsContent value="classic" className="space-y-6">
               <div className="bg-card rounded-xl p-6 shadow-[var(--shadow-card)] border border-border">
-                <TemplateSelector data={businessData} />
+                <TemplateSelector
+                  data={businessData}
+                  selectedFont={selectedFont}
+                  fontSize={fontSize}
+                  textColor={textColor}
+                  accentColor={accentColor}
+                />
               </div>
             </TabsContent>
           </Tabs>
