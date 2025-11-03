@@ -3,8 +3,8 @@ import { BusinessCardData } from "./BusinessCardForm";
 import { DynamicCard } from "./templates/DynamicCard";
 import { Button } from "./ui/button";
 import { Loader2, Sparkles, Check } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { generateDesigns } from "@/services/designService";
 
 interface AITemplateGalleryProps {
   data: BusinessCardData;
@@ -17,53 +17,42 @@ export const AITemplateGallery = ({ data, onSelectTemplate, selectedDesignId }: 
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const generateDesigns = async (count: number = 100) => {
+    const requestDesigns = async (count: number = 100) => {
     setIsLoading(true);
     try {
-      // Temporary mock data with diverse designs
-      const styleOptions = {
-        bgStyles: ["gradient", "solid", "pattern", "image"],
-        colorSchemes: [
-          { bg: ["#f0f9ff", "#e0f2fe"], text: "#0f172a", accent: "#0ea5e9" },  // Blue
-          { bg: ["#fdf4ff", "#fae8ff"], text: "#701a75", accent: "#c026d3" },  // Purple
-          { bg: ["#f7fee7", "#ecfccb"], text: "#365314", accent: "#84cc16" },  // Green
-          { bg: ["#fff7ed", "#ffedd5"], text: "#7c2d12", accent: "#f97316" },  // Orange
-          { bg: ["#fef2f2", "#fee2e2"], text: "#7f1d1d", accent: "#ef4444" },  // Red
-          { bg: ["#1e1b4b", "#312e81"], text: "#e0e7ff", accent: "#818cf8" },  // Dark Blue
-        ],
-        layouts: ["centered", "left-aligned", "split", "minimal", "bold", "modern"],
-        decorations: ["circles", "lines", "dots", "waves", "geometric", "none"],
-        fontWeights: ["light", "normal", "bold", "black"],
-        borderStyles: ["none", "rounded", "sharp", "fancy", "shadow"]
-      };
-
-      const mockDesigns = Array(count).fill(null).map((_, index) => {
-        const colorScheme = styleOptions.colorSchemes[index % styleOptions.colorSchemes.length];
-        return {
-          id: `design-${index}`,
-          name: `Design ${index + 1}`,
-          bgStyle: styleOptions.bgStyles[index % styleOptions.bgStyles.length],
-          bgColors: colorScheme.bg,
-          textColor: colorScheme.text,
-          accentColor: colorScheme.accent,
-          layout: styleOptions.layouts[index % styleOptions.layouts.length],
-          decoration: styleOptions.decorations[index % styleOptions.decorations.length],
-          fontWeight: styleOptions.fontWeights[index % styleOptions.fontWeights.length],
-          borderStyle: styleOptions.borderStyles[index % styleOptions.borderStyles.length]
-        };
-      });
+      const designs = await generateDesigns(count, data);
       
-      setDesigns(mockDesigns);
+      // Process and validate the designs
+      if (!Array.isArray(designs)) {
+        throw new Error('Invalid response format from AI service');
+      }
+
+      const processedDesigns = designs.map((design: any, index: number) => ({
+        id: design.id || `design-${index}`,
+        name: design.name || `Design ${index + 1}`,
+        bgStyle: design.bgStyle || 'gradient',
+        bgColors: Array.isArray(design.bgColors) ? design.bgColors : ['#ffffff', '#f0f0f0'],
+        textColor: design.textColor || '#000000',
+        accentColor: design.accentColor || '#0ea5e9',
+        layout: design.layout || 'centered',
+        decoration: design.decoration || 'none',
+        fontWeight: design.fontWeight || 'normal',
+        fontFamily: design.fontFamily || 'Arial',
+        borderStyle: design.borderStyle || 'none'
+      }));
+
+      setDesigns(processedDesigns);
+
       toast({
         title: "Success!",
-        description: `Generated ${mockDesigns.length} sample designs`,
+        description: `Generated ${processedDesigns.length} unique business card designs`,
       });
     } catch (error: any) {
-      console.error("Error:", error);
+      console.error('Error generating designs:', error);
       toast({
-        title: "Error",
-        description: "Failed to generate designs",
         variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to generate designs",
       });
     } finally {
       setIsLoading(false);
@@ -71,7 +60,7 @@ export const AITemplateGallery = ({ data, onSelectTemplate, selectedDesignId }: 
   };
 
   useEffect(() => {
-    generateDesigns(100);
+    requestDesigns(100);
   }, []);
 
   return (
@@ -82,7 +71,7 @@ export const AITemplateGallery = ({ data, onSelectTemplate, selectedDesignId }: 
           AI-Generated Templates
         </h2>
         <Button
-          onClick={() => generateDesigns(100)}
+          onClick={() => requestDesigns(100)}
           disabled={isLoading}
           variant="outline"
           className="gap-2"

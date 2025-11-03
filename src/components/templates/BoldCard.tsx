@@ -3,9 +3,13 @@ import { BusinessCardData } from "../BusinessCardForm";
 
 interface BoldCardProps {
   data: BusinessCardData;
+  fontFamily?: string;
+  fontSize?: number;
+  textColor?: string;
+  accentColor?: string;
 }
 
-export const BoldCard = ({ data }: BoldCardProps) => {
+export const BoldCard = ({ data, fontFamily = "Arial, sans-serif", fontSize, textColor = "#000000", accentColor = "#0ea5e9" }: BoldCardProps) => {
   const vCardData = `BEGIN:VCARD
 VERSION:3.0
 FN:${data.name}
@@ -18,27 +22,30 @@ ADR:${data.address}
 END:VCARD`;
 
   return (
-    <div className="w-full aspect-[1.75/1] bg-white rounded-lg overflow-hidden shadow-lg">
+    <div
+      className="w-full aspect-[1.75/1] bg-white rounded-lg overflow-hidden shadow-lg"
+      style={{ fontFamily, fontSize: fontSize ? `${fontSize}px` : '16px' }}
+    >
       <div className="h-1/3 bg-gradient-to-r from-primary to-accent p-6 flex items-center">
         <div>
           <h3 className="text-2xl font-bold text-white mb-1">{data.name || "Your Name"}</h3>
           <p className="text-sm text-white/90">{data.title || "Job Title"}</p>
         </div>
       </div>
-      
+
       <div className="h-2/3 p-6 flex flex-col justify-between">
         <div>
-          <p className="text-lg font-semibold text-primary mb-4">{data.company || "Company Name"}</p>
-          <div className="space-y-1.5 text-sm text-gray-700">
+          <p className="text-lg font-semibold mb-4" style={{ color: accentColor }}>{data.company || "Company Name"}</p>
+          <div className="space-y-1.5 text-sm" style={{ color: textColor }}>
             {data.email && <div className="font-medium">{data.email}</div>}
             {data.phone && <div>{data.phone}</div>}
-            {data.website && <div className="text-primary">{data.website}</div>}
+            {data.website && <div style={{ color: accentColor }}>{data.website}</div>}
           </div>
         </div>
-        
+
         {data.name && data.email && (
           <div className="flex justify-end">
-            <div className="border-2 border-primary rounded p-1.5">
+            <div className="border-2 rounded p-1.5" style={{ borderColor: accentColor }}>
               <QRCodeSVG value={vCardData} size={50} />
             </div>
           </div>

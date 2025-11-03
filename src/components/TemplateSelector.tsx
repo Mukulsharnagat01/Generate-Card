@@ -8,6 +8,10 @@ import { Check } from "lucide-react";
 
 interface TemplateSelectorProps {
   data: BusinessCardData;
+  selectedFont?: string;
+  fontSize?: number;
+  textColor?: string;
+  accentColor?: string;
 }
 
 const templates = [
@@ -17,7 +21,13 @@ const templates = [
   { id: "bold", name: "Bold", component: BoldCard },
 ];
 
-export const TemplateSelector = ({ data }: TemplateSelectorProps) => {
+export const TemplateSelector = ({
+  data,
+  selectedFont = "Arial, sans-serif",
+  fontSize = 16,
+  textColor = "#000000",
+  accentColor = "#0ea5e9"
+}: TemplateSelectorProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState("minimal");
 
   const SelectedComponent = templates.find((t) => t.id === selectedTemplate)?.component || MinimalCard;
@@ -28,7 +38,13 @@ export const TemplateSelector = ({ data }: TemplateSelectorProps) => {
         <h2 className="text-2xl font-bold mb-4 text-foreground">Preview</h2>
         <div className="bg-gradient-to-br from-muted to-background p-8 rounded-lg">
           <div className="max-w-md mx-auto">
-            <SelectedComponent data={data} />
+            <SelectedComponent
+              data={data}
+              fontFamily={selectedFont}
+              fontSize={fontSize}
+              textColor={textColor}
+              accentColor={accentColor}
+            />
           </div>
         </div>
       </div>
@@ -54,7 +70,13 @@ export const TemplateSelector = ({ data }: TemplateSelectorProps) => {
                   </div>
                 )}
                 <div className="pointer-events-none transform scale-75 origin-top-left">
-                  <Component data={data} />
+                  <Component
+                    data={data}
+                    fontFamily={selectedFont}
+                    fontSize={fontSize}
+                    textColor={textColor}
+                    accentColor={accentColor}
+                  />
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
                   <p className="text-white font-medium text-sm">{template.name}</p>
