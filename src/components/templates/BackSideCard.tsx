@@ -246,13 +246,27 @@ interface Props {
   fontFamily?: string;
   fontSize?: number;
   showLargeQR?: boolean;
+  transparentBg?: boolean;
+  compact?: boolean;
+  qrSize?: number;
 }
 
-export const BackSideCard: React.FC<Props> = ({ data, config, background, textColor, accentColor, fontFamily, fontSize = 15, showLargeQR = true }) => {
+export const BackSideCard: React.FC<Props> = ({ data, config, background, textColor, accentColor, fontFamily, fontSize = 15, showLargeQR = true, transparentBg = false, compact = false, qrSize }) => {
   const appliedAccent = accentColor ?? config?.accentColor ?? "#1f2937";
-  const appliedText = textColor ?? config?.textColor ?? "#0f172a";
+  // auto-contrast helper
+  const getContrast = (hex: string) => {
+    try {
+      const v = hex.replace('#','');
+      const r = parseInt(v.substring(0,2),16);
+      const g = parseInt(v.substring(2,4),16);
+      const b = parseInt(v.substring(4,6),16);
+      const luminance = (0.299*r + 0.587*g + 0.114*b)/255;
+      return luminance > 0.6 ? "#0f172a" : "#ffffff";
+    } catch { return "#0f172a"; }
+  };
 
   const bgStyle: React.CSSProperties = (() => {
+    if (transparentBg) return {};
     const style = config?.bgStyle ?? background?.style ?? "solid";
     const colors = config?.bgColors ?? background?.colors ?? ["#ffffff"];
     if (style === "gradient" && colors.length >= 2) {
@@ -261,11 +275,47 @@ export const BackSideCard: React.FC<Props> = ({ data, config, background, textCo
     return { backgroundColor: colors[0] };
   })();
 
+  const baseBgColor = (config?.bgColors ?? background?.colors ?? ["#ffffff"])[0];
+  const appliedText = textColor ?? config?.textColor ?? getContrast(baseBgColor);
+
   const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${data.name}\nTITLE:${data.title}\nORG:${data.company}\nEMAIL:${data.email}\nTEL:${data.phone}\nURL:${data.website}\nADR:${data.address}\nEND:VCARD`;
+
+  const content = (
+    <div className="relative z-10 flex items-center justify-center h-full w-full">
+      {compact ? (
+        <div className="w-full flex items-center justify-center gap-4 px-2" style={{ lineHeight: 1.2 }}>
+          <div className="text-sm space-y-1 text-center">
+            <div><strong style={{ color: appliedAccent }}>✉</strong> {data.email || "email@example.com"}</div>
+            <div><strong style={{ color: appliedAccent }}>✆</strong> {data.phone || "+91 00000 00000"}</div>
+            <div><strong style={{ color: appliedAccent }}>⌂</strong> {data.website || "your-website.com"}</div>
+          </div>
+          {(data.name || data.email || data.phone || data.website || data.address || data.company) && (
+            <div style={{ background: "rgba(255,255,255,0.9)", padding: 6, borderRadius: 8 }}>
+              <QRCodeSVG value={vCardData} size={qrSize ?? (showLargeQR ? 96 : 64)} />
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center w-full">
+          <div style={{ textAlign: "center" }}>
+            <div><strong style={{ color: appliedAccent }}>✉</strong> {data.email || "email@example.com"}</div>
+            <div><strong style={{ color: appliedAccent }}>✆</strong> {data.phone || "+91 00000 00000"}</div>
+            <div><strong style={{ color: appliedAccent }}>⌂</strong> {data.website || "your-website.com"}</div>
+            <div><strong style={{ color: appliedAccent }}>📍</strong> {data.address || "Your Address, City"}</div>
+          </div>
+          {(data.name || data.email || data.phone || data.website || data.address || data.company) && (
+            <div style={{ marginTop: 10, background: "rgba(255,255,255,0.9)", padding: 8, borderRadius: 8 }}>
+              <QRCodeSVG value={vCardData} size={qrSize ?? (showLargeQR ? 96 : 64)} />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div
-      className="w-full aspect-[1.75/1] p-6 relative overflow-hidden shadow-lg rounded-lg"
+      className="w-full aspect-[1.75/1] p-4 md:p-6 relative overflow-hidden shadow-lg rounded-lg"
       style={{
         ...bgStyle,
         color: appliedText,
@@ -273,45 +323,21 @@ export const BackSideCard: React.FC<Props> = ({ data, config, background, textCo
         fontSize,
       }}
     >
-      {/* Subtle topo lines */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <svg width="100%" height="100%">
-          <defs>
-            <pattern id="topo" width="100" height="100" patternUnits="userSpaceOnUse">
-              <path
-                d="M0,50 C25,0 75,0 100,50 C75,100 25,100 0,50Z"
-                fill="none"
-                stroke={appliedAccent}
-                strokeWidth="1"
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#topo)" />
-        </svg>
-      </div>
-
-      <div className="relative z-10 flex flex-col items-center justify-center h-full">
-        <div style={{ textAlign: "center" }}>
-          {data.email && (
-            <div><strong style={{ color: appliedAccent }}>✉</strong> {data.email}</div>
-          )}
-          {data.phone && (
-            <div><strong style={{ color: appliedAccent }}>✆</strong> {data.phone}</div>
-          )}
-          {data.website && (
-            <div><strong style={{ color: appliedAccent }}>⌂</strong> {data.website}</div>
-          )}
-          {data.address && (
-            <div><strong style={{ color: appliedAccent }}>📍</strong> {data.address}</div>
-          )}
+      {/* Background overlay only when not transparent */}
+      {!transparentBg && (
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <svg width="100%" height="100%">
+            <defs>
+              <pattern id="topo" width="100" height="100" patternUnits="userSpaceOnUse">
+                <path d="M0,50 C25,0 75,0 100,50 C75,100 25,100 0,50Z" fill="none" stroke={appliedAccent} strokeWidth="1" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#topo)" />
+          </svg>
         </div>
+      )}
 
-        {showLargeQR && (data.email || data.phone) && (
-          <div style={{ marginTop: 14, background: "rgba(255,255,255,0.9)", padding: 8, borderRadius: 8 }}>
-            <QRCodeSVG value={vCardData} size={96} />
-          </div>
-        )}
-      </div>
+      {content}
     </div>
   );
 };

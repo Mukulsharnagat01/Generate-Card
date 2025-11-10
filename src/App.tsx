@@ -4,6 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./router";
+import { AuthProvider } from "./contexts/AuthContext";
+
+// import TemplateRenderer from "./components/TemplateRenderer";
+// import { photoFrameTemplate } from "./components/templates/photoFrameTemplate";
+
+
 
 const queryClient = new QueryClient();
 
@@ -12,9 +18,12 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
 
 export default App;
+

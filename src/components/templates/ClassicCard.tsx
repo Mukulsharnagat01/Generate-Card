@@ -340,103 +340,10 @@ export const ClassicCard: React.FC<ClassicCardProps> = ({
   const appliedAccent = accentColor ?? config.accentColor;
 
   const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${data.name}\nTITLE:${data.title}\nORG:${data.company}\nEMAIL:${data.email}\nTEL:${data.phone}\nURL:${data.website}\nADR:${data.address}\nEND:VCARD`;
-
-  // 🌟 Special Gold Badge Layout
-  if (config.layout === "GoldBadgeLayout") {
-    return (
-      <div
-        className="w-full aspect-[1.75/1] p-6 relative overflow-hidden shadow-xl rounded-xl"
-        style={{
-          backgroundColor: config.bgColors[0] || "#0b1220",
-          color: appliedText,
-          fontFamily,
-          fontSize: `${fontSize || 15}px`,
-        }}
-      >
-        {/* Topographic pattern */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg width="100%" height="100%">
-            <defs>
-              <pattern id="goldTopo" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path
-                  d="M0,50 C25,0 75,0 100,50 C75,100 25,100 0,50Z"
-                  fill="none"
-                  stroke={appliedAccent}
-                  strokeWidth="1"
-                />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#goldTopo)" />
-          </svg>
-        </div>
-
-        {/* Golden glow on left */}
-        <div
-          className="absolute left-0 top-0 bottom-0 w-1/3"
-          style={{
-            background: `radial-gradient(circle at right center, rgba(212,175,55,0.25), transparent 80%)`,
-          }}
-        />
-
-        {/* Hexagonal gold badge */}
-        <div className="flex items-center justify-center absolute left-10 top-1/2 -translate-y-1/2 z-20">
-          <div
-            className="relative flex items-center justify-center shadow-lg"
-            style={{
-              width: 120,
-              height: 120,
-              background: config.metallic
-                ? `linear-gradient(145deg, #d4af37, #b8860b)`
-                : config.badgeColor,
-              clipPath:
-                "polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)",
-              boxShadow:
-                "inset 0 2px 6px rgba(255,255,255,0.25), 0 8px 18px rgba(0,0,0,0.5)",
-            }}
-          >
-            {data.logo ? (
-              <img
-                src={data.logo}
-                alt="Logo"
-                className="absolute w-14 h-14 object-contain"
-              />
-            ) : (
-              <div className="text-black font-bold text-sm">LOGO</div>
-            )}
-          </div>
-        </div>
-
-        {/* Text on right side */}
-        <div className="flex flex-col justify-center absolute right-10 top-1/2 -translate-y-1/2 z-20 text-right">
-          <h3 className="text-2xl font-semibold" style={{ color: appliedText }}>
-            {data.name || "Your Name"}
-          </h3>
-          <p className="text-sm mt-1" style={{ color: appliedAccent }}>
-            {data.title || "General Manager"}
-          </p>
-          <p
-            className="text-xs mt-2 opacity-80"
-            style={{ color: appliedText }}
-          >
-            {data.company || "Company Name"}
-          </p>
-        </div>
-
-        {/* QR bottom-right */}
-        {data.name && data.email && (
-          <div className="absolute bottom-4 right-4 bg-white p-2 rounded-lg shadow-md z-30">
-            <QRCodeSVG value={vCardData} size={60} />
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // 🧱 Default (your existing)
+  // Background helper
   const getBg = (): React.CSSProperties => {
-    const angle = config.gradientAngle ?? 135;
     if (config.bgStyle === "gradient" && config.bgColors.length >= 2) {
-      return { background: `linear-gradient(${angle}deg, ${config.bgColors[0]}, ${config.bgColors[1]})` };
+      return { background: `linear-gradient(135deg, ${config.bgColors[0]}, ${config.bgColors[1]})` };
     }
     return { backgroundColor: config.bgColors[0] };
   };
@@ -458,6 +365,13 @@ export const ClassicCard: React.FC<ClassicCardProps> = ({
         fontSize: `${fontSize || 15}px`,
       }}
     >
+      {data.logo && (
+        <div className="absolute top-3 right-3 z-20 bg-white/80 backdrop-blur-sm rounded-full p-1 shadow">
+          <div className="rounded-full overflow-hidden border border-white/70" style={{ width: 48, height: 48 }}>
+            <img src={data.logo} alt="logo" className="w-full h-full object-cover rounded-full" crossOrigin="anonymous" />
+          </div>
+        </div>
+      )}
       <div className="relative z-10 flex flex-col justify-between h-full">
         <div>
           <h3 className="text-2xl font-semibold">{data.name || "Your Name"}</h3>
