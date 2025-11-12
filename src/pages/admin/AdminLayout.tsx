@@ -9,6 +9,7 @@ const AdminLayout = () => {
         <div className="flex items-center gap-4">
           <Link to="/" className="font-semibold">Home</Link>
           <Link to="/admin/templates" className="font-semibold">Templates</Link>
+          <Link to="/admin/contacts" className="font-semibold">Contacts</Link>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">{profile?.role}</span>

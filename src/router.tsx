@@ -7,6 +7,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import TemplatesList from "./pages/admin/TemplatesList";
 import NewTemplate from "./pages/admin/NewTemplate";
 import EditTemplate from "./pages/admin/EditTemplate";
+import ContactMessages from "./pages/admin/ContactMessages";
 
 export const router = createBrowserRouter(
   [
@@ -32,6 +33,7 @@ export const router = createBrowserRouter(
                 { path: "templates", element: <TemplatesList /> },
                 { path: "templates/new", element: <NewTemplate /> },
                 { path: "templates/:id/edit", element: <EditTemplate /> },
+                { path: "contacts", element: <ContactMessages /> },
               ],
             },
           ],
