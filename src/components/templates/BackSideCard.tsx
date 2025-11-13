@@ -1,230 +1,4 @@
-// import { BusinessCardData } from "../BusinessCardForm";
-// import { QRCodeSVG } from "qrcode.react";
-
-// interface BackSideCardProps {
-//   data: BusinessCardData;
-//   background: { style: "solid" | "gradient"; colors: string[] };
-//   textColor: string;
-//   accentColor: string;
-//   fontFamily?: string;
-//   fontSize?: number;
-// }
-
-// export const BackSideCard = ({
-//   data,
-//   background,
-//   textColor,
-//   accentColor,
-//   fontFamily = "Arial, sans-serif",
-//   fontSize,
-// }: BackSideCardProps) => {
-//   const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${data.name}\nTITLE:${data.title}\nORG:${data.company}\nEMAIL:${data.email}\nTEL:${data.phone}\nURL:${data.website}\nADR:${data.address}\nEND:VCARD`;
-//   const getBgStyle = () => {
-//     if (background.style === "gradient" && background.colors.length >= 2) {
-//       return { background: `linear-gradient(135deg, ${background.colors[0]}, ${background.colors[1]})` };
-//     }
-//     return { backgroundColor: background.colors[0] };
-//   };
-
-//   return (
-//     <div
-//       className="w-full aspect-[1.75/1] p-8 flex flex-col justify-center items-center relative overflow-hidden shadow-lg rounded-xl"
-//       style={{
-//         ...getBgStyle(),
-//         color: textColor,
-//         fontFamily,
-//         fontSize: fontSize ? `${fontSize}px` : "16px",
-//       }}
-//     >
-//       <div className="w-full max-w-sm text-center space-y-3">
-//         {data.email && (
-//           <div className="text-sm">
-//             <span className="font-semibold" style={{ color: accentColor }}>✉ </span>
-//             <span>{data.email}</span>
-//           </div>
-//         )}
-//         {data.phone && (
-//           <div className="text-sm">
-//             <span className="font-semibold" style={{ color: accentColor }}>✆ </span>
-//             <span>{data.phone}</span>
-//           </div>
-//         )}
-//         {data.website  && (
-//           <div className="text-sm">
-//             <span className="font-semibold" style={{ color: accentColor }}>⌂ </span>
-//             <span>{data.website}</span>
-//           </div>
-//         )}
-//         {data.address && (
-//           <div className="text-sm">
-//             <span className="font-semibold" style={{ color: accentColor }}>Address: </span>
-//             <span>{data.address}</span>
-//           </div>
-//         )}
-//       </div>
-//       {/* {data.name && (data.email || data.phone) && (
-//         <div className="mt-6 bg-white p-2 rounded-lg shadow-md">
-//           <QRCodeSVG value={vCardData} size={64} />
-//         </div>
-//       )} */}
-//     </div>
-//   );
-// };
-
-// src/components/BackSideCard.tsx
-// import React from "react";
-// import { QRCodeSVG } from "qrcode.react";
-// import type { ClassicDesignConfig } from "@/lib/classicTemplates";
-// import { BusinessCardData } from "../BusinessCardForm";
-
-// interface BackSideCardProps {
-//   data: BusinessCardData;
-//   config?: ClassicDesignConfig; // optional: if provided, back will match front
-//   background?: { style: "solid" | "gradient"; colors: string[] };
-//   textColor?: string;
-//   accentColor?: string;
-//   fontFamily?: string;
-//   fontSize?: number;
-//   patternOpacity?: number;
-//   showQRCode?: boolean;
-// }
-
-// export const BackSideCard: React.FC<BackSideCardProps> = ({
-//   data,
-//   config,
-//   background,
-//   textColor,
-//   accentColor,
-//   fontFamily = "Inter, Arial, sans-serif",
-//   fontSize,
-//   patternOpacity = 0.08,
-//   showQRCode = true,
-// }) => {
-//   // Choose values: prefer config (matching front) else background props
-//   const bgStyle = config?.bgStyle ?? (background ? background.style : "solid");
-//   const bgColors = config?.bgColors ?? (background ? background.colors : ["#ffffff"]);
-//   const appliedText = textColor ?? config?.textColor ?? "#0f172a";
-//   const appliedAccent = accentColor ?? config?.accentColor ?? "#1f2937";
-//   const pattern = config?.pattern ?? "none";
-
-//   const getBgStyle = (): React.CSSProperties => {
-//     if (bgStyle === "gradient" && bgColors.length >= 2) {
-//       const angle = config?.gradientAngle ?? 135;
-//       return { background: `linear-gradient(${angle}deg, ${bgColors[0]}, ${bgColors[1]})` };
-//     }
-//     // pattern or solid base color
-//     return { backgroundColor: bgColors[0] };
-//   };
-
-//   const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${data.name}\nTITLE:${data.title}\nORG:${data.company}\nEMAIL:${data.email}\nTEL:${data.phone}\nURL:${data.website}\nADR:${data.address}\nEND:VCARD`;
-
-//   const patternMap: Record<string, (accent: string, scale?: number) => React.CSSProperties> = {
-//     dots: (accent, scale = 22) => ({
-//       backgroundImage: `radial-gradient(${accent} 1px, transparent 1px)`,
-//       backgroundSize: `${scale}px ${scale}px`,
-//     }),
-//     grid: (accent, scale = 26) => ({
-//       backgroundImage: `linear-gradient(${accent} 1px, transparent 1px), linear-gradient(90deg, ${accent} 1px, transparent 1px)`,
-//       backgroundSize: `${scale}px ${scale}px`,
-//     }),
-//     waves: (accent, scale = 180) => ({
-//       backgroundImage: `radial-gradient(circle at 20% 30%, ${accent} 0%, transparent 35%), radial-gradient(circle at 80% 70%, ${accent} 0%, transparent 35%)`,
-//       backgroundSize: `${scale}px ${scale}px`,
-//     }),
-//     zigzag: (accent, scale = 18) => ({
-//       backgroundImage: `repeating-linear-gradient(45deg, ${accent}, ${accent} 2px, transparent 2px, transparent ${scale}px)`,
-//       backgroundSize: `${scale}px ${scale}px`,
-//     }),
-//     mesh: (accent, scale = 220) => ({
-//       backgroundImage: `linear-gradient(120deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02))`,
-//       backgroundSize: `${scale}px ${scale}px`,
-//     }),
-//     stripes: (accent, scale = 36) => ({
-//       backgroundImage: `repeating-linear-gradient(135deg, ${accent}, ${accent} 10px, transparent 10px, transparent ${scale}px)`,
-//       backgroundSize: `${scale}px ${scale}px`,
-//     }),
-//     radial: (accent, scale = 300) => ({
-//       backgroundImage: `radial-gradient(circle at 30% 30%, ${accent} 0%, transparent 45%)`,
-//       backgroundSize: `${scale}px ${scale}px`,
-//     }),
-//     diagonal: (accent, scale = 60) => ({
-//       backgroundImage: `repeating-linear-gradient(135deg, ${accent}, ${accent} 2px, transparent 2px, transparent ${scale}px)`,
-//       backgroundSize: `${scale}px ${scale}px`,
-//     }),
-//     none: () => ({}),
-//   };
-
-//   const borderClass = config?.borderStyle === "rounded" ? "rounded-xl" : config?.borderStyle === "dashed" ? "border-2 border-dashed" : "";
-
-//   return (
-//     <div
-//       className={`w-full aspect-[1.75/1] p-8 flex flex-col justify-center items-center relative overflow-hidden shadow-lg ${borderClass}`}
-//       style={{
-//         ...getBgStyle(),
-//         color: appliedText,
-//         fontFamily,
-//         fontSize: fontSize ? `${fontSize}px` : "15px",
-//       }}
-//     >
-//       {/* pattern overlay */}
-//       {pattern && pattern !== "none" && (
-//         <div
-//           className="absolute inset-0 pointer-events-none"
-//           style={{
-//             ...(patternMap[pattern] ? patternMap[pattern](appliedAccent, config?.patternScale) : {}),
-//             opacity: patternOpacity,
-//             mixBlendMode: bgStyle === "gradient" ? "overlay" : "soft-light",
-//           }}
-//         />
-//       )}
-
-//       <div className="w-full max-w-sm text-center z-10 space-y-3">
-//         {data.email && (
-//           <div className="text-sm">
-//             <span className="font-semibold" style={{ color: appliedAccent }}>
-//               ✉
-//             </span>{" "}
-//             <span>{data.email}</span>
-//           </div>
-//         )}
-//         {data.phone && (
-//           <div className="text-sm">
-//             <span className="font-semibold" style={{ color: appliedAccent }}>
-//               ✆
-//             </span>{" "}
-//             <span>{data.phone}</span>
-//           </div>
-//         )}
-//         {data.website && (
-//           <div className="text-sm">
-//             <span className="font-semibold" style={{ color: appliedAccent }}>
-//               ⌂
-//             </span>{" "}
-//             <span>{data.website}</span>
-//           </div>
-//         )}
-//         {data.address && (
-//           <div className="text-sm">
-//             <span className="font-semibold" style={{ color: appliedAccent }}>
-//               📍
-//             </span>{" "}
-//             <span>{data.address}</span>
-//           </div>
-//         )}
-//       </div>
-
-//       {showQRCode && data.name && (data.email || data.phone) && (
-//         <div className="mt-6 bg-white/80 p-2 rounded-lg shadow-md z-10">
-//           <QRCodeSVG value={vCardData} size={64} />
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-// export default BackSideCard;
-
-// src/components/BackSideCard.tsx
-import React from "react";
+import React, { useMemo } from "react";
 import type { ClassicDesignConfig } from "@/lib/classicTemplates";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -249,38 +23,73 @@ interface Props {
   transparentBg?: boolean;
   compact?: boolean;
   qrSize?: number;
+  // New Props
+  qrColor?: string;
+  qrLogoUrl?: string;
 }
 
-export const BackSideCard: React.FC<Props> = ({ data, config, background, textColor, accentColor, fontFamily, fontSize = 15, showLargeQR = true, transparentBg = false, compact = false, qrSize }) => {
-  const appliedAccent = accentColor ?? config?.accentColor ?? "#1f2937";
-  // auto-contrast helper
-  const getContrast = (hex: string) => {
-    try {
-      const v = hex.replace('#','');
-      const r = parseInt(v.substring(0,2),16);
-      const g = parseInt(v.substring(2,4),16);
-      const b = parseInt(v.substring(4,6),16);
-      const luminance = (0.299*r + 0.587*g + 0.114*b)/255;
-      return luminance > 0.6 ? "#0f172a" : "#ffffff";
-    } catch { return "#0f172a"; }
-  };
+// Helper: Move outside component
+const getContrast = (hex: string) => {
+  try {
+    const v = hex.replace("#", "");
+    const fullHex = v.length === 3 ? v.split("").map((c) => c + c).join("") : v;
+    const r = parseInt(fullHex.substring(0, 2), 16);
+    const g = parseInt(fullHex.substring(2, 4), 16);
+    const b = parseInt(fullHex.substring(4, 6), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.6 ? "#0f172a" : "#ffffff";
+  } catch {
+    return "#0f172a";
+  }
+};
 
-  const bgStyle: React.CSSProperties = (() => {
+export const BackSideCard: React.FC<Props> = ({
+  data,
+  config,
+  background,
+  textColor,
+  accentColor,
+  fontFamily,
+  fontSize = 15,
+  showLargeQR = true,
+  transparentBg = false,
+  compact = false,
+  qrSize,
+  qrColor = "#000000",
+  qrLogoUrl,
+}) => {
+  const appliedAccent = accentColor ?? config?.accentColor ?? "#1f2937";
+
+  const bgStyle: React.CSSProperties = useMemo(() => {
     if (transparentBg) return {};
     const style = config?.bgStyle ?? background?.style ?? "solid";
     const colors = config?.bgColors ?? background?.colors ?? ["#ffffff"];
+    
     if (style === "gradient" && colors.length >= 2) {
       return { background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` };
     }
     return { backgroundColor: colors[0] };
-  })();
+  }, [transparentBg, config, background]);
 
   const baseBgColor = (config?.bgColors ?? background?.colors ?? ["#ffffff"])[0];
   const appliedText = textColor ?? config?.textColor ?? getContrast(baseBgColor);
 
   const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${data.name}\nTITLE:${data.title}\nORG:${data.company}\nEMAIL:${data.email}\nTEL:${data.phone}\nURL:${data.website}\nADR:${data.address}\nEND:VCARD`;
 
-  const content = (
+  // Dynamic Image Settings for QR
+  const qrImageSettings = useMemo(() => {
+    if (!qrLogoUrl) return undefined;
+    return {
+      src: qrLogoUrl,
+      x: undefined,
+      y: undefined,
+      height: 24,
+      width: 24,
+      excavate: true, // Cuts a hole in the QR code for the logo
+    };
+  }, [qrLogoUrl]);
+
+  const renderContent = () => (
     <div className="relative z-10 flex items-center justify-center h-full w-full">
       {compact ? (
         <div className="w-full flex items-center justify-center gap-4 px-2" style={{ lineHeight: 1.2 }}>
@@ -289,23 +98,33 @@ export const BackSideCard: React.FC<Props> = ({ data, config, background, textCo
             <div><strong style={{ color: appliedAccent }}>✆</strong> {data.phone || "+91 00000 00000"}</div>
             <div><strong style={{ color: appliedAccent }}>⌂</strong> {data.website || "your-website.com"}</div>
           </div>
-          {(data.name || data.email || data.phone || data.website || data.address || data.company) && (
-            <div style={{ background: "rgba(255,255,255,0.9)", padding: 6, borderRadius: 8 }}>
-              <QRCodeSVG value={vCardData} size={qrSize ?? (showLargeQR ? 96 : 64)} />
+          {(data.name || data.email) && (
+            <div className="bg-white/90 p-1.5 rounded-lg shadow-sm">
+              <QRCodeSVG 
+                value={vCardData} 
+                size={qrSize ?? (showLargeQR ? 80 : 60)} 
+                fgColor={qrColor}
+                imageSettings={qrImageSettings}
+              />
             </div>
           )}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center w-full">
-          <div style={{ textAlign: "center" }}>
+        <div className="flex flex-col items-center justify-center w-full space-y-3">
+          <div className="text-center space-y-1">
             <div><strong style={{ color: appliedAccent }}>✉</strong> {data.email || "email@example.com"}</div>
             <div><strong style={{ color: appliedAccent }}>✆</strong> {data.phone || "+91 00000 00000"}</div>
             <div><strong style={{ color: appliedAccent }}>⌂</strong> {data.website || "your-website.com"}</div>
             <div><strong style={{ color: appliedAccent }}>📍</strong> {data.address || "Your Address, City"}</div>
           </div>
-          {(data.name || data.email || data.phone || data.website || data.address || data.company) && (
-            <div style={{ marginTop: 10, background: "rgba(255,255,255,0.9)", padding: 8, borderRadius: 8 }}>
-              <QRCodeSVG value={vCardData} size={qrSize ?? (showLargeQR ? 96 : 64)} />
+          {(data.name || data.email) && (
+            <div className="bg-white/90 p-2 rounded-xl shadow-sm backdrop-blur-sm">
+              <QRCodeSVG 
+                value={vCardData} 
+                size={qrSize ?? (showLargeQR ? 100 : 64)} 
+                fgColor={qrColor}
+                imageSettings={qrImageSettings}
+              />
             </div>
           )}
         </div>
@@ -315,7 +134,7 @@ export const BackSideCard: React.FC<Props> = ({ data, config, background, textCo
 
   return (
     <div
-      className="w-full aspect-[1.75/1] p-4 md:p-6 relative overflow-hidden shadow-lg rounded-lg"
+      className="w-full aspect-[1.75/1] p-4 md:p-6 relative overflow-hidden shadow-lg rounded-xl transition-all duration-300"
       style={{
         ...bgStyle,
         color: appliedText,
@@ -323,7 +142,6 @@ export const BackSideCard: React.FC<Props> = ({ data, config, background, textCo
         fontSize,
       }}
     >
-      {/* Background overlay only when not transparent */}
       {!transparentBg && (
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <svg width="100%" height="100%">
@@ -336,8 +154,7 @@ export const BackSideCard: React.FC<Props> = ({ data, config, background, textCo
           </svg>
         </div>
       )}
-
-      {content}
+      {renderContent()}
     </div>
   );
 };
