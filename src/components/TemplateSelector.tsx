@@ -368,7 +368,7 @@ export const TemplateSelector = ({
       try {
         const data = await listPublishedTemplates();
         if (alive) setSbTemplates(Array.isArray(data) ? data : []);
-      } catch {}
+      } catch { }
     })();
     return () => {
       alive = false;
@@ -410,11 +410,11 @@ export const TemplateSelector = ({
       price,
       serverMeta: isServer
         ? {
-            name: st?.name,
-            background_url: st?.background_url,
-            back_background_url: st?.back_background_url,
-            config: st?.config,
-          }
+          name: st?.name,
+          background_url: st?.background_url,
+          back_background_url: st?.back_background_url,
+          config: st?.config,
+        }
         : undefined,
     });
     navigate("/cart");
@@ -447,11 +447,11 @@ export const TemplateSelector = ({
         price,
         serverMeta: isServer
           ? {
-              name: st?.name,
-              background_url: st?.background_url,
-              back_background_url: st?.back_background_url,
-              config: st?.config,
-            }
+            name: st?.name,
+            background_url: st?.background_url,
+            back_background_url: st?.back_background_url,
+            config: st?.config,
+          }
           : undefined,
       });
 
@@ -1346,11 +1346,10 @@ export const TemplateSelector = ({
               <div key={item.id} className="relative">
                 <button
                   onClick={() => setSelectedTemplate(item.id)}
-                  className={`group relative rounded-lg overflow-hidden transition-all duration-300 border-2 ${
-                    selectedTemplate === item.id
+                  className={`group relative rounded-lg overflow-hidden transition-all duration-300 border-2 ${selectedTemplate === item.id
                       ? "border-primary shadow-[var(--shadow-hover)]"
                       : "border-border hover:border-primary/50 hover:shadow-[var(--shadow-card)]"
-                  }`}
+                    }`}
                 >
                   {selectedTemplate === item.id && (
                     <div className="absolute top-2 right-2 z-10 bg-primary text-primary-foreground rounded-full p-1">
