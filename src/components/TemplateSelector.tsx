@@ -68,6 +68,7 @@ export const TemplateSelector = ({
   const [isEditLayout, setIsEditLayout] = useState(false);
   const [isLayoutDialogOpen, setIsLayoutDialogOpen] = useState(false);
   const [isStyleDialogOpen, setIsStyleDialogOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -338,15 +339,80 @@ export const TemplateSelector = ({
     <div className="space-y-6 overflow-x-hidden">
       <div className="bg-card rounded-xl p-6 shadow-[var(--shadow-card)] border border-border animate-fade-in [animation-delay:0.1s] opacity-0 [animation-fill-mode:forwards]">
         <div className="flex flex-col gap-4 mb-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-foreground">Selected Design Preview</h2>
-            <div className="flex items-center gap-2">
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={isEditLayout} onChange={(e) => setIsEditLayout(e.target.checked)} />
-                Edit layout
-              </label>
-              <Button onClick={buyCurrent} size="sm" className="gap-2">Buy</Button>
-              <Button onClick={addToCart} variant="outline" size="sm" className="gap-2">Add to Cart</Button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <h2 className="text-xl font-bold text-foreground">Preview</h2>
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  try {
+                    setIsSaving(true);
+                    // Save the current design state
+                    const designState = {
+                      templateId: selectedTemplate,
+                      positions: isEditLayout ? positions : undefined,
+                      backPositions: isEditLayout ? positionsBack : undefined,
+                      font: selectedFont,
+                      fontSize,
+                      textColor,
+                      accentColor,
+                      timestamp: new Date().toISOString()
+                    };
+                    console.log('Saving design:', designState);
+                    // Here you would typically save to your backend or state management
+                    // For now, we'll just show a success message
+                    alert('Design saved successfully!');
+                  } catch (error) {
+                    console.error('Error saving design:', error);
+                    alert('Failed to save design. Please try again.');
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                disabled={isSaving}
+                className="gap-1.5"
+              >
+                {isSaving ? 'Saving...' : 'Save Design'}
+              </Button>
+              
+              {isEditLayout ? (
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={() => setIsEditLayout(false)}
+                  className="gap-1.5"
+                >
+                  Exit 
+                </Button>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setIsEditLayout(true)}
+                  className="gap-1.5"
+                >
+                  Edit 
+                </Button>
+              )}
+              
+              <Button 
+                onClick={buyCurrent} 
+                size="sm" 
+                variant="default"
+                className="gap-1.5"
+              >
+                Buy 
+              </Button>
+              
+              <Button 
+                onClick={addToCart} 
+                variant="outline" 
+                size="sm" 
+                className="gap-1.5"
+              >
+                 Cart
+              </Button>
             </div>
           </div>
 
