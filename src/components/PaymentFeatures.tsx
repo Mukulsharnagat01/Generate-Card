@@ -23,7 +23,7 @@ export const PaymentFeatures = () => {
 
     items.forEach((item, i) => {
       // Feature text animation
-      gsap.fromTo(item, 
+      gsap.fromTo(item,
         { opacity: 0, y: 100 },
         {
           opacity: 1,
@@ -66,6 +66,7 @@ export const PaymentFeatures = () => {
     <>
       {/* Main Services Section */}
       <section
+        id="services"
         ref={sectionRef}
         className="relative min-h-screen w-full py-20 "
         style={{
