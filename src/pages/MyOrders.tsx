@@ -79,8 +79,8 @@ export default function MyOrders() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/40">
-      <main className="container mx-auto max-w-3xl px-4 py-10">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-background to-muted/40">
+      <main className="container mx-auto max-w-3xl px-4 py-10 flex-grow">
         <div className="mb-6 space-y-2">
           <h1 className="text-3xl font-bold">My Orders</h1>
           <p className="text-sm text-muted-foreground">
