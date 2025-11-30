@@ -94,6 +94,14 @@ const Index = () => {
               >
                 Cart
               </Link>
+              {user && (
+                <Link
+                  to="/my-account"
+                  className="rounded-full px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm bg-white/10 hover:bg-white/20 border border-white/20 shadow-sm transition-all hover:shadow-md whitespace-nowrap"
+                >
+                  My Account
+                </Link>
+              )}
               {user ? (
                 <>
                   <Link
@@ -158,6 +166,13 @@ const Index = () => {
                     className="block w-full px-4 py-2 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-center"
                   >
                     Orders
+                  </Link>
+                  <Link
+                    to="/my-account"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full px-4 py-2 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-center"
+                  >
+                    My Account
                   </Link>
                   {profile?.role === "admin" && (
                     <Link
