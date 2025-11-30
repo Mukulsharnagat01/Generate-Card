@@ -1,15 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Hero } from "@/components/Hero";
 import { BusinessCardForm, BusinessCardData } from "@/components/BusinessCardForm";
 import { TemplateSelector } from "@/components/TemplateSelector";
-import { CustomizationPanel } from "@/components/CustomizationPanel";
 import { PaymentBanner } from "@/components/PaymentBanner";
 import { PaymentFeatures } from "@/components/PaymentFeatures";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Facebook, Twitter, Instagram, Linkedin, Search, Menu, X } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/services/api";
@@ -19,7 +18,18 @@ import Footer from "@/components/Footer";
 const Index = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const [businessData, setBusinessData] = useState<BusinessCardData>({
     name: "",
@@ -32,12 +42,7 @@ const Index = () => {
     logo: "",
   });
 
-  const [selectedFont, setSelectedFont] = useState<string>("Arial, sans-serif");
-  const [fontSize, setFontSize] = useState<number>(16);
-  const [textColor, setTextColor] = useState<string>("#000000");
-  const [accentColor, setAccentColor] = useState<string>("#0ea5e9");
-
-  // Contact form state
+  // Contact form
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [contactMessage, setContactMessage] = useState("");
@@ -69,11 +74,43 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-transparent">
-        <div className="container mx-auto max-w-7xl px-4 py-3">
-          <div className="flex items-center justify-between rounded-2xl border border-white/20 bg-white/10 dark:bg-neutral-900/40 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-4 py-2">
-            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-              <img src="/ChatGPT Image Nov 14, 2025, 10_52_55 AM.png" alt="BusinessCard" className="h-10 sm:h-14 w-auto select-none" />
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'bg-white shadow-md' : 'bg-black/0'}`}>
+        <div className="relative flex items-center justify-between px-4 py-2 md:px-8 lg:px-12">
+          {/* Logo */}
+          <Link to="/" className="flex items-center">
+            <img
+              src="/ChatGPT Image Nov 14, 2025, 10_52_55 AM.png"
+              alt="BusinessCard"
+              className="h-8 md:h-10 w-auto drop-shadow-lg"
+            />
+          </Link>
+
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            <a 
+              href="#services"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+                setMobileMenuOpen(false);
+              }}
+              className={`px-5 py-2.5 ${isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'} hover:text-gray-900 rounded-full transition-all text-sm font-medium cursor-pointer`}
+            >
+              Services
+            </a>
+            <a 
+              href="#contact" 
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                setMobileMenuOpen(false);
+              }}
+              className={`px-5 py-2.5 ${isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'} hover:text-gray-900 rounded-full transition-all text-sm font-medium cursor-pointer`}
+            >
+              Contact
+            </a>
+            <Link to="/cart" className={`px-5 py-2.5 ${isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'} hover:text-gray-900 rounded-full transition-all text-sm font-medium cursor-pointer`}>
+              Cart
             </Link>
             <div className="hidden md:flex flex-1 justify-center px-4">
               <div className="relative w-full max-w-md">
@@ -111,61 +148,70 @@ const Index = () => {
                   >
                     Orders
                   </Link>
-                  {profile?.role === "admin" && (
-                    <Link
-                      to="/admin/templates"
-                      className="rounded-full px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm bg-white/10 hover:bg-white/20 border border-white/20 shadow-sm transition-all hover:shadow-md whitespace-nowrap"
-                    >
-                      Admin
-                    </Link>
-                  )}
-                  <button
-                    onClick={async () => {
-                      await signOut();
-                      navigate("/");
-                    }}
-                    className="rounded-full px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm bg-white/10 hover:bg-white/20 border border-white/20 shadow-sm transition-all hover:shadow-md whitespace-nowrap"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <Link
-                  to="/login"
-                  className="rounded-full px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm bg-white/10 hover:bg-white/20 border border-white/20 shadow-sm transition-all hover:shadow-md whitespace-nowrap"
+                )}
+                <button
+                  onClick={async () => {
+                    await signOut();
+                    navigate("/");
+                  }}
+                  className="px-6 py-2.5 bg-white text-black rounded-full font-semibold hover:bg-white/90 transition-all text-sm shadow-lg"
                 >
-                  Login
-                </Link>
-              )}
-            </div>
-
-            {/* Mobile Hamburger */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="sm:hidden p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="sm:hidden mt-3 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-4 space-y-2">
+                  Logout
+                </button>
+              </>
+            ) : (
               <Link
-                to="/cart"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block w-full px-4 py-2 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-center"
+                to="/login"
+                className="px-6 py-2.5 bg-white text-black rounded-full font-semibold hover:bg-white/90 transition-all text-sm shadow-lg"
               >
-                Cart
+                Login
               </Link>
-              {user ? (
+            )}
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-3 rounded-xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all"
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-black/70 backdrop-blur-2xl border-t border-white/10">
+            <div className="px-6 py-6 space-y-3">
+              <div className="flex flex-col gap-4 mt-6">
+                <a 
+                  href="#services"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-white/90 hover:text-white text-lg py-2 block"
+                >
+                  Services
+                </a>
+                <a 
+                  href="#contact"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                    setMobileMenuOpen(false);
+                  }}
+                  className="text-white/90 hover:text-white text-lg py-2 block"
+                >
+                  Contact
+                </a>
+                <Link to="/cart" className="text-white/90 hover:text-white text-lg py-2">
+                  Cart
+                </Link>
+              </div>
+              {user && (
                 <>
-                  <Link
-                    to="/my-orders"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block w-full px-4 py-2 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-center"
-                  >
+                  <Link to="/my-orders" onClick={() => setMobileMenuOpen(false)} className="block py-3 text-white/90 hover:text-white text-lg">
                     Orders
                   </Link>
                   <Link
@@ -176,11 +222,7 @@ const Index = () => {
                     My Account
                   </Link>
                   {profile?.role === "admin" && (
-                    <Link
-                      to="/admin/templates"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block w-full px-4 py-2 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-center"
-                    >
+                    <Link to="/admin/templates" onClick={() => setMobileMenuOpen(false)} className="block py-3 text-white/90 hover:text-white text-lg">
                       Admin
                     </Link>
                   )}
@@ -190,74 +232,54 @@ const Index = () => {
                       navigate("/");
                       setMobileMenuOpen(false);
                     }}
-                    className="w-full px-4 py-2 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all"
+                    className="w-full py-3 bg-white text-black rounded-xl font-semibold"
                   >
                     Logout
                   </button>
                 </>
-              ) : (
+              )}
+              {!user && (
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full px-4 py-2 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all text-center"
+                  className="block w-full text-center py-3 bg-white text-black rounded-xl font-semibold"
                 >
                   Login
                 </Link>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </header>
 
       <Hero />
+
       <PaymentBanner />
 
       <main className="container mx-auto max-w-7xl px-4 py-12">
-        {/* Form + Customization */}
-      
-          <div>
-            <BusinessCardForm data={businessData} onChange={setBusinessData} />
-          </div>
-
-            {/* Customization Panel */}
-            {/* <div className="bg-card rounded-xl p-6 shadow-[var(--shadow-card)] border border-border animate-fade-in [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
-              <CustomizationPanel
-                selectedFont={selectedFont}
-                onFontSelect={setSelectedFont}
-                fontSize={fontSize}
-                onFontSizeChange={setFontSize}
-                textColor={textColor}
-                onTextColorChange={setTextColor}
-                accentColor={accentColor}
-                onAccentColorChange={setAccentColor}
-              />
-            </div> */}
-        
-      
-
-        {/* Classic Templates Only */}
-        <div id="classic-templates" className="animate-fade-in [animation-delay:0.4s] opacity-0 [animation-fill-mode:forwards]">
-          <div className="bg-card rounded-xl p-6 shadow-[var(--shadow-card)] border border-border">
-            <TemplateSelector
-              data={businessData}
-              selectedFont={selectedFont}
-              fontSize={fontSize}
-              textColor={textColor}
-              accentColor={accentColor}
-            />
-          </div>
+        {/* Only Form - Full Width on Mobile, Single Column */}
+        <div className="max-w-2xl mx-auto">
+          <BusinessCardForm data={businessData} onChange={setBusinessData} />
         </div>
 
-      {/* Payment Features */}
-      <PaymentFeatures />
+        {/* Templates */}
+        <div id="classic-templates" className="mt-16">
+          <div className="bg-card rounded-xl p-6 shadow-[var(--shadow-card)] border border-border">
+            <TemplateSelector data={businessData} />
+          </div>
+        </div>
+      </main>
 
+      <PaymentFeatures />
 
       {/* Contact Section */}
       <section id="contact" className="border-t border-border bg-background">
         <div className="container mx-auto max-w-7xl px-4 py-16 grid md:grid-cols-2 gap-10">
           <div>
             <h2 className="text-3xl font-bold mb-2">Contact Us</h2>
-            <p className="text-muted-foreground">Have questions or feature requests? Send us a message and we’ll respond shortly.</p>
+            <p className="text-muted-foreground">
+              Have questions or feature requests? Send us a message and we’ll respond shortly.
+            </p>
           </div>
           <form onSubmit={handleContactSubmit} className="space-y-4 bg-card p-6 rounded-xl border border-border shadow-[var(--shadow-card)]">
             <div className="grid sm:grid-cols-2 gap-4">
@@ -272,18 +294,24 @@ const Index = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="contact-message">Message</Label>
-              <Textarea id="contact-message" placeholder="How can we help?" value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} rows={5} />
+              <Textarea
+                id="contact-message"
+                placeholder="How can we help?"
+                value={contactMessage}
+                onChange={(e) => setContactMessage(e.target.value)}
+                rows={5}
+              />
             </div>
             <div className="flex justify-end">
-              <Button type="submit" disabled={submitting}>{submitting ? "Sending..." : "Send Message"}</Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "Sending..." : "Send Message"}
+              </Button>
             </div>
           </form>
         </div>
       </section>
 
-      {/* Import and use the Footer component */}
       <Footer />
-
     </div>
   );
 };
