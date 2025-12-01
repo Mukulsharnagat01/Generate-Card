@@ -35,7 +35,8 @@ export const BusinessCardForm = ({ data, onChange }: BusinessCardFormProps) => {
   };
 
   return (
-    <div className="bg-card rounded-xl p-6 shadow-[var(--shadow-card)] border border-border animate-fade-in w-full max-w-md mx-auto lg:max-w-none">
+    <div className="w-full">
+      <div className="bg-card rounded-xl p-6 shadow-[var(--shadow-card)] border border-border animate-fade-in w-full">
       <h2 className="text-2xl font-bold mb-6 text-foreground">Your Details</h2>
       <div className="space-y-4">
         <div className="group">
@@ -134,6 +135,7 @@ export const BusinessCardForm = ({ data, onChange }: BusinessCardFormProps) => {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 };

@@ -69,48 +69,31 @@ function makeId(i: number) {
   return `template-${String(i + 1).padStart(3, "0")}`;
 }
 
-// generate 100 templates programmatically
+// Generate one template per layout type
 export const classicTemplates: ClassicDesignConfig[] = (() => {
   const out: ClassicDesignConfig[] = [];
-  for (let i = 0; i < 100; i++) {
-    const themeIdx = i % baseThemes.length;
-    const theme = baseThemes[themeIdx];
-    const variant = Math.floor(i / baseThemes.length); // 0..9 roughly
-    const layout = layouts[i % layouts.length];
-    const pattern = patterns[(i * 3 + variant) % patterns.length];
-
-    // small variations
-    const metallic = (i % 11) === 0 || (themeIdx % 3 === 0 && variant % 2 === 0); // occasional metallics
-    const borderStyle = ["rounded", "sharp", "dashed"][i % 3] as ClassicDesignConfig["borderStyle"];
-    const fontWeight = ["light", "normal", "bold"][i % 3] as ClassicDesignConfig["fontWeight"];
-
-    // choose colors rotated by variant for variety
-    const primary = theme[(variant + 0) % 3];
-    const secondary = theme[(variant + 1) % 3];
-    const accent = theme[2];
-    const textColor = theme[3];
-
-    // alternate bgStyle for variety
-    const bgStyle = i % 4 === 0 ? "solid" : i % 4 === 1 ? "gradient" : "pattern";
-
+  
+  // Create one template for each layout type
+  layouts.forEach((layout, index) => {
+    const theme = baseThemes[index % baseThemes.length];
+    const pattern = patterns[index % patterns.length];
+    
     out.push({
-      id: makeId(i),
-      name: `${layout} ${themeIdx + 1}-${variant + 1}`,
+      id: `classic-${String(index + 1).padStart(3, '0')}`,
+      name: `${layout} Classic`,
       layout,
-      bgStyle,
-      bgColors: bgStyle === "gradient" ? [primary, secondary] : [primary],
-      textColor,
-      accentColor: accent,
+      bgStyle: "solid",
+      bgColors: [theme[0]],
+      textColor: theme[3],
+      accentColor: theme[2],
       pattern,
-      fontFamily: variant % 2 === 0 ? "Inter, sans-serif" : "Playfair Display, serif",
-      fontWeight,
-      borderStyle,
-      badgeColor: metallic ? "#D4AF37" : accent,
-      metallic,
-      description: `Layout ${layout} • Theme ${themeIdx + 1} • variant ${variant + 1}`,
+      fontFamily: "Inter, sans-serif",
+      fontWeight: "normal",
+      borderStyle: "rounded",
+      badgeColor: theme[2],
+      description: `Classic ${layout} layout`
     });
-  }
+  });
 
-  // Return full classic set like before (no curation/limiting)
   return out;
 })();

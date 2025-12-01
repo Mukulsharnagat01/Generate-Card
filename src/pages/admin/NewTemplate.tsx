@@ -26,15 +26,15 @@ const NewTemplate = () => {
   const [fontSize, setFontSize] = useState(16);
   const [accentColor, setAccentColor] = useState("#0ea5e9");
   const [fontFamily, setFontFamily] = useState<string>("Inter, Arial, sans-serif");
-  
+
   // QR Code State
   const [qrColor, setQrColor] = useState("#000000");
   const [qrLogoUrl, setQrLogoUrl] = useState(""); // URL for logo inside QR
 
   // Assets State (Dual: File OR URL)
   const [bgFile, setBgFile] = useState<File | null>(null);
-  const [bgUrlInput, setBgUrlInput] = useState(""); 
-  
+  const [bgUrlInput, setBgUrlInput] = useState("");
+
   const [backBgFile, setBackBgFile] = useState<File | null>(null);
   const [backBgUrlInput, setBackBgUrlInput] = useState("");
 
@@ -165,16 +165,16 @@ const NewTemplate = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
+
         {/* LEFT: Sticky Preview Area (Span 5) */}
         <div className="lg:col-span-5">
           <div className="sticky top-6 space-y-4">
             <div className="flex items-center justify-between bg-white p-2 rounded-lg border shadow-sm">
               <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 px-2">Live Preview</span>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowBack((v) => !v)}
                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
               >
@@ -183,7 +183,7 @@ const NewTemplate = () => {
             </div>
 
             {/* The Card Render */}
-            <div 
+            <div
               className="w-full aspect-[1.75/1] rounded-xl shadow-2xl border border-gray-200 overflow-hidden transition-all duration-500"
               style={{
                 backgroundColor: getPreviewBg() ? undefined : "#ffffff",
@@ -209,37 +209,37 @@ const NewTemplate = () => {
                   <div className="w-full h-full flex items-center justify-end p-8">
                     <div className="flex flex-col text-right z-10">
                       <h3
-  className="font-bold leading-tight mb-1"
-  style={{
-    color: fontColor,
-    fontFamily,
-    fontSize: fontSize + 8, // Name largest
-  }}
->
-  {previewData.name}
-</h3>
+                        className="font-bold leading-tight mb-1"
+                        style={{
+                          color: fontColor,
+                          fontFamily,
+                          fontSize: fontSize + 8, // Name largest
+                        }}
+                      >
+                        {previewData.name}
+                      </h3>
 
-<p
-  className="font-medium mb-2"
-  style={{
-    color: accentColor,
-    fontFamily,
-    fontSize: fontSize + 4, // Title medium
-  }}
->
-  {previewData.title}
-</p>
+                      <p
+                        className="font-medium mb-2"
+                        style={{
+                          color: accentColor,
+                          fontFamily,
+                          fontSize: fontSize + 4, // Title medium
+                        }}
+                      >
+                        {previewData.title}
+                      </p>
 
-<p
-  className="opacity-75"
-  style={{
-    color: fontColor,
-    fontFamily,
-    fontSize: fontSize, // Company base size
-  }}
->
-  {previewData.company}
-</p>
+                      <p
+                        className="opacity-75"
+                        style={{
+                          color: fontColor,
+                          fontFamily,
+                          fontSize: fontSize, // Company base size
+                        }}
+                      >
+                        {previewData.company}
+                      </p>
 
                     </div>
                   </div>
@@ -259,20 +259,19 @@ const NewTemplate = () => {
           <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
             {/* Custom Tab Navigation */}
             <div className="flex border-b bg-gray-50/50">
-               {['general', 'design', 'qr', 'content'].map(tab => (
-                 <button
-                   key={tab}
-                   type="button"
-                   onClick={() => setActiveTab(tab)}
-                   className={`px-6 py-3 text-sm font-medium capitalize transition-colors ${
-                     activeTab === tab 
-                     ? "border-b-2 border-black text-black bg-white" 
-                     : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                   }`}
-                 >
-                   {tab === 'qr' ? 'QR Code' : tab}
-                 </button>
-               ))}
+              {['general', 'design', 'qr', 'content'].map(tab => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-6 py-3 text-sm font-medium capitalize transition-colors ${activeTab === tab
+                    ? "border-b-2 border-black text-black bg-white"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    }`}
+                >
+                  {tab === 'qr' ? 'QR Code' : tab}
+                </button>
+              ))}
             </div>
 
             <div className="p-6 space-y-6">
@@ -342,34 +341,34 @@ const NewTemplate = () => {
                   {/* Backgrounds Section */}
                   <div className="space-y-4">
                     <h3 className="text-sm font-bold text-gray-900">Backgrounds</h3>
-                    
+
                     <div className="p-4 bg-gray-50 rounded-lg space-y-3">
                       <label className="text-sm font-medium block">Front Background</label>
                       <div className="flex gap-2">
-                         <input 
-                           type="text" 
-                           placeholder="Paste Image URL (e.g., https://...)" 
-                           className="flex-1 border rounded-md px-3 py-2 text-sm"
-                           value={bgUrlInput}
-                           onChange={(e) => setBgUrlInput(e.target.value)}
-                         />
-                         <span className="text-xs self-center text-gray-400">OR</span>
-                         <input type="file" className="w-1/3 text-xs" accept="image/*" onChange={(e) => setBgFile(e.target.files?.[0] ?? null)} />
+                        <input
+                          type="text"
+                          placeholder="Paste Image URL (e.g., https://...)"
+                          className="flex-1 border rounded-md px-3 py-2 text-sm"
+                          value={bgUrlInput}
+                          onChange={(e) => setBgUrlInput(e.target.value)}
+                        />
+                        <span className="text-xs self-center text-gray-400">OR</span>
+                        <input type="file" className="w-1/3 text-xs" accept="image/*" onChange={(e) => setBgFile(e.target.files?.[0] ?? null)} />
                       </div>
                     </div>
 
                     <div className="p-4 bg-gray-50 rounded-lg space-y-3">
                       <label className="text-sm font-medium block">Back Background</label>
                       <div className="flex gap-2">
-                         <input 
-                           type="text" 
-                           placeholder="Paste Image URL (e.g., https://...)" 
-                           className="flex-1 border rounded-md px-3 py-2 text-sm"
-                           value={backBgUrlInput}
-                           onChange={(e) => setBackBgUrlInput(e.target.value)}
-                         />
-                         <span className="text-xs self-center text-gray-400">OR</span>
-                         <input type="file" className="w-1/3 text-xs" accept="image/*" onChange={(e) => setBackBgFile(e.target.files?.[0] ?? null)} />
+                        <input
+                          type="text"
+                          placeholder="Paste Image URL (e.g., https://...)"
+                          className="flex-1 border rounded-md px-3 py-2 text-sm"
+                          value={backBgUrlInput}
+                          onChange={(e) => setBackBgUrlInput(e.target.value)}
+                        />
+                        <span className="text-xs self-center text-gray-400">OR</span>
+                        <input type="file" className="w-1/3 text-xs" accept="image/*" onChange={(e) => setBackBgFile(e.target.files?.[0] ?? null)} />
                       </div>
                     </div>
                   </div>
@@ -403,6 +402,27 @@ const NewTemplate = () => {
                         <option value="Playfair Display, serif">Playfair (Elegant)</option>
                         <option value="Georgia, serif">Georgia (Classic)</option>
                         <option value="Courier New, monospace">Courier (Retro)</option>
+                        <option value="Roboto, sans-serif">Roboto (Modern)</option>
+                        <option value="Poppins, sans-serif">Poppins (Rounded Modern)</option>
+                        <option value="Montserrat, sans-serif">Montserrat (Professional)</option>
+                        <option value="Lato, sans-serif">Lato (Smooth)</option>
+                        <option value="Nunito, sans-serif">Nunito (Soft Rounded)</option>
+                        <option value="Open Sans, sans-serif">Open Sans (Clean)</option>
+                        <option value="Source Sans Pro, sans-serif">Source Sans (Neutral)</option>
+                        <option value="Ubuntu, sans-serif">Ubuntu (Tech Style)</option>
+                        <option value="Pacifico, cursive">Pacifico (Handwritten)</option>
+                        <option value="Dancing Script, cursive">Dancing Script (Signature)</option>
+                        <option value="Great Vibes, cursive">Great Vibes (Elegant Script)</option>
+                        <option value="Rubik, sans-serif">Rubik (Rounded Stylish)</option>
+                        <option value="Josefin Sans, sans-serif">Josefin Sans (Minimal Stylish)</option>
+                        <option value="Raleway, sans-serif">Raleway (Thin Modern)</option>
+                        <option value="Merriweather, serif">Merriweather (Elegant Serif)</option>
+                        <option value="Times New Roman, serif">Times New Roman (Formal Classic)</option>
+                        <option value="Garamond, serif">Garamond (Premium Traditional)</option>
+                        <option value="Cormorant Garamond, serif">Cormorant Garamond (Luxury Serif)</option>
+                        <option value="Bodoni Moda, serif">Bodoni Moda (High Fashion)</option>
+
+
                       </select>
                     </div>
                   </div>
@@ -412,31 +432,31 @@ const NewTemplate = () => {
               {/* QR CODE TAB */}
               {activeTab === 'qr' && (
                 <div className="space-y-6">
-                   <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-700 mb-4">
-                     Customize how the VCard QR looks on the back of the card.
-                   </div>
-                   
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">QR Foreground Color</label>
-                        <div className="flex items-center gap-3">
-                          <input type="color" className="h-10 w-14 p-1 bg-white border rounded" value={qrColor} onChange={(e) => setQrColor(e.target.value)} />
-                          <div className="text-xs text-gray-500">Usually Black or Dark Blue</div>
-                        </div>
-                      </div>
+                  <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-700 mb-4">
+                    Customize how the VCard QR looks on the back of the card.
+                  </div>
 
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Center Logo URL</label>
-                        <input 
-                          type="text" 
-                          className="w-full border rounded-md px-3 py-2 text-sm" 
-                          placeholder="https://... (Logo Icon)" 
-                          value={qrLogoUrl} 
-                          onChange={(e) => setQrLogoUrl(e.target.value)} 
-                        />
-                        <p className="text-xs text-gray-400">Paste a URL to a small, square logo (PNG/SVG) to appear in the center.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">QR Foreground Color</label>
+                      <div className="flex items-center gap-3">
+                        <input type="color" className="h-10 w-14 p-1 bg-white border rounded" value={qrColor} onChange={(e) => setQrColor(e.target.value)} />
+                        <div className="text-xs text-gray-500">Usually Black or Dark Blue</div>
                       </div>
-                   </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Center Logo URL</label>
+                      <input
+                        type="text"
+                        className="w-full border rounded-md px-3 py-2 text-sm"
+                        placeholder="https://... (Logo Icon)"
+                        value={qrLogoUrl}
+                        onChange={(e) => setQrLogoUrl(e.target.value)}
+                      />
+                      <p className="text-xs text-gray-400">Paste a URL to a small, square logo (PNG/SVG) to appear in the center.</p>
+                    </div>
+                  </div>
                 </div>
               )}
 

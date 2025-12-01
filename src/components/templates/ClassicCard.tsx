@@ -25,6 +25,12 @@ export const ClassicCard: React.FC<ClassicCardProps> = ({
   const hasUserCoreInfo = !!(data.name && data.email && data.phone);
   const hasUserName = !!data.name?.trim();
 
+  // Calculate responsive font sizes
+  const baseFontSize = fontSize || 15;
+  const titleSize = baseFontSize + 6; // Larger for name
+  const subtitleSize = baseFontSize + 2; // Slightly larger for title
+  const bodySize = Math.max(12, baseFontSize); // Minimum 12px for body text
+
   const vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${data.name}\nTITLE:${data.title}\nORG:${data.company}\nEMAIL:${data.email}\nTEL:${data.phone}\nURL:${data.website}\nADR:${data.address}\nEND:VCARD`;
   // Background helper
   const getBg = (): React.CSSProperties => {
@@ -43,12 +49,11 @@ export const ClassicCard: React.FC<ClassicCardProps> = ({
 
   return (
     <div
-      className={`w-full h-full p-4 relative overflow-hidde ${borderClass} shadow-lg`}
+      className={`w-full h-full p-4 relative overflow-hidden ${borderClass} shadow-lg`}
       style={{
         ...getBg(),
         color: appliedText,
         fontFamily,
-        fontSize: `${fontSize || 15}px`,
       }}
     >
       {data.logo && (
@@ -60,16 +65,35 @@ export const ClassicCard: React.FC<ClassicCardProps> = ({
       )}
       <div className="relative z-10 flex flex-col justify-between h-full">
         <div>
-          <h3 className="font-semibold" style={{ fontSize: (fontSize || 15) + 6 }}>
+          <h3
+            className="font-semibold md:text-lg lg:text-xl"
+            style={{
+              fontSize: `${titleSize}px`,
+              lineHeight: 1.2,
+            }}
+          >
             {hasUserName ? (data.name || "") : (data.name || "Your Name")}
           </h3>
           {data.title?.trim() && (
-            <p className="mt-1" style={{ color: appliedAccent, fontSize: (fontSize || 15) + 2 }}>
+            <p
+              className="mt-1 md:text-base lg:text-lg"
+              style={{
+                color: appliedAccent,
+                fontSize: `${subtitleSize}px`,
+                lineHeight: 1.3,
+              }}
+            >
               {data.title}
             </p>
           )}
           {data.company?.trim() && (
-            <p className="mt-1 opacity-80" style={{ fontSize: Math.max(12, (fontSize || 15)) }}>
+            <p
+              className="mt-1 opacity-80 md:text-sm lg:text-base"
+              style={{
+                fontSize: `${bodySize}px`,
+                lineHeight: 1.4,
+              }}
+            >
               {data.company}
             </p>
           )}
