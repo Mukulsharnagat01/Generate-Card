@@ -610,6 +610,25 @@ const EditTemplate = () => {
                         <option value="Courier New, monospace">
                           Courier (Retro)
                         </option>
+                         <option value="Roboto, sans-serif">Roboto (Modern)</option>
+                        <option value="Poppins, sans-serif">Poppins (Rounded Modern)</option>
+                        <option value="Montserrat, sans-serif">Montserrat (Professional)</option>
+                        <option value="Lato, sans-serif">Lato (Smooth)</option>
+                        <option value="Nunito, sans-serif">Nunito (Soft Rounded)</option>
+                        <option value="Open Sans, sans-serif">Open Sans (Clean)</option>
+                        <option value="Source Sans Pro, sans-serif">Source Sans (Neutral)</option>
+                        <option value="Ubuntu, sans-serif">Ubuntu (Tech Style)</option>
+                        <option value="Pacifico, cursive">Pacifico (Handwritten)</option>
+                        <option value="Dancing Script, cursive">Dancing Script (Signature)</option>
+                        <option value="Great Vibes, cursive">Great Vibes (Elegant Script)</option>
+                        <option value="Rubik, sans-serif">Rubik (Rounded Stylish)</option>
+                        <option value="Josefin Sans, sans-serif">Josefin Sans (Minimal Stylish)</option>
+                        <option value="Raleway, sans-serif">Raleway (Thin Modern)</option>
+                        <option value="Merriweather, serif">Merriweather (Elegant Serif)</option>
+                        <option value="Times New Roman, serif">Times New Roman (Formal Classic)</option>
+                        <option value="Garamond, serif">Garamond (Premium Traditional)</option>
+                        <option value="Cormorant Garamond, serif">Cormorant Garamond (Luxury Serif)</option>
+                        <option value="Bodoni Moda, serif">Bodoni Moda (High Fashion)</option>
                       </select>
                     </div>
                   </div>
