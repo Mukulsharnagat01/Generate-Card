@@ -440,7 +440,7 @@
 //               >
 //                 {isSaving ? 'Saving...' : 'Save Design'}
 //               </Button>
-              
+
 //               {/* {isEditLayout ? (
 //                 <Button 
 //                   variant="default" 
@@ -461,7 +461,7 @@
 //                 </Button>
 //               )}
 //                */}
-               
+
 //               <Button 
 //                 onClick={buyCurrent} 
 //                 size="sm" 
@@ -470,7 +470,7 @@
 //               >
 //                 Buy
 //               </Button>
-              
+
 //               <Button 
 //                 onClick={addToCart} 
 //                 variant="outline" 
@@ -598,7 +598,7 @@
 //                             config={selectedConfig}
 //                             fontFamily={hasOverrides ? selectedFont : undefined}
 //                             fontSize={hasOverrides ? fontSize : undefined}
-                            
+
 //                             textColor={hasOverrides ? textColor : undefined}
 //                             accentColor={hasOverrides ? accentColor : undefined}
 //                           />
@@ -664,8 +664,8 @@
 //                       </div>
 //                       </div>
 
-                      
-              
+
+
 // <div 
 //   ref={previewContainerRef} 
 //   className="relative overflow-hidden mx-auto"
@@ -1068,7 +1068,7 @@
 //             </div>
 //           </div>
 //         </div>
-        
+
 //         {/* <div className="mt-4">
 //           <CustomizationPanel
 //             selectedFont={selectedFont}
@@ -1183,7 +1183,7 @@
 //     </div>
 //   ))}
 // </div>
-        
+
 
 // {/* Pagination controls */}
 //       {sbTemplates.length > 0 && (
@@ -1196,7 +1196,7 @@
 //           >
 //             Prev
 //           </Button>
-      
+
 //           <div className="text-sm text-muted-foreground">
 //             Page {page + 1} of {Math.ceil(sbTemplates.length / pageSize)}
 //           </div>
@@ -1215,7 +1215,7 @@
 //     </div>
 // </div>
 
-  
+
 
 
 import { useEffect, useState, useRef } from "react";
@@ -1497,6 +1497,7 @@ export const TemplateSelector = ({
         el.style.setProperty("--cardScale", String(scaleValue));
       });
     };
+  }, []);
 
   // for font scalling
   useEffect(() => {
@@ -2274,11 +2275,10 @@ export const TemplateSelector = ({
                 >
                   <button
                     onClick={() => setSelectedTemplate(item.id)}
-                    className={`group relative rounded-lg overflow-hidden transition-all duration-300 border-2 w-full h-full ${
-                      selectedTemplate === item.id
+                    className={`group relative rounded-lg overflow-hidden transition-all duration-300 border-2 w-full h-full ${selectedTemplate === item.id
                         ? "border-primary shadow-[var(--shadow-hover)]"
                         : "border-border hover:border-primary/50 hover:shadow-[var(--shadow-card)]"
-                    }`}
+                      }`}
                   >
                     {selectedTemplate === item.id && (
                       <div className="absolute top-2 right-2 z-10 bg-primary text-primary-foreground rounded-full p-1">
