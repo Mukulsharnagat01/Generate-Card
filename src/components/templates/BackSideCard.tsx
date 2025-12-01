@@ -58,14 +58,11 @@ export const BackSideCard: React.FC<Props> = ({
   qrColor = "#000000",
   qrLogoUrl,
 }) => {
-    // ---- FONT SCALE BASED ON fontSize ----
-  const scale = fontSize / 16;
-
-  const sizeEmail = 12 * scale;
-  const sizePhone = 12 * scale;
-  const sizeWebsite = 12 * scale;
-  const sizeAddress = 12 * scale;
-  const sizeQR = (qrSize ?? (showLargeQR ? 60 : 40)) * scale;
+  // Calculate responsive font sizes
+  const baseSize = fontSize || 12;
+  const textSize = baseSize;
+  const iconSize = baseSize * 1.2; // Icons slightly larger than text
+  const qrSizeValue = (qrSize ?? (showLargeQR ? 60 : 40)) * (baseSize / 12);
 
   const appliedAccent = accentColor ?? config?.accentColor ?? "#1f2937";
   const hasUserCoreInfo = !!(data.name && data.email && data.phone);
@@ -74,7 +71,7 @@ export const BackSideCard: React.FC<Props> = ({
     if (transparentBg) return {};
     const style = config?.bgStyle ?? background?.style ?? "solid";
     const colors = config?.bgColors ?? background?.colors ?? ["#ffffff"];
-    
+
     if (style === "gradient" && colors.length >= 2) {
       return { background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` };
     }
@@ -107,28 +104,52 @@ export const BackSideCard: React.FC<Props> = ({
           {hasUserCoreInfo ? (
             <>
               {data.email && (
-                <div style={{ fontSize: sizeEmail }}>
-  <strong style={{ color: appliedAccent }}>✉</strong> {data.email}
-</div>
+                <div className="flex items-center gap-2 md:gap-3">
+                  <span style={{ color: appliedAccent, fontSize: `${iconSize}px` }}></span>
+                  <span className="md:text-base lg:text-lg" style={{ fontSize: `${textSize}px` }}>
+                    {data.email}
+                  </span>
+                </div>
               )}
-              <div style={{ fontSize: sizePhone }}>
-  <strong style={{ color: appliedAccent }}>✆</strong> {data.phone}
-</div>
-
-              <div style={{ fontSize: sizeWebsite }}>
-  <strong style={{ color: appliedAccent }}>⌂</strong> {data.website}
-</div>
-
-             <div style={{ fontSize: sizeAddress }}>
-  <strong style={{ color: appliedAccent }}>📍</strong> {data.address}
-</div>
-
+              <div className="flex items-center gap-2 md:gap-3">
+                <span style={{ color: appliedAccent, fontSize: `${iconSize}px` }}></span>
+                <span className="md:text-base lg:text-lg" style={{ fontSize: `${textSize}px` }}>
+                  {data.phone}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 md:gap-3">
+                <span style={{ color: appliedAccent, fontSize: `${iconSize}px` }}></span>
+                <span className="md:text-base lg:text-lg" style={{ fontSize: `${textSize}px` }}>
+                  {data.website}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 md:gap-3">
+                <span style={{ color: appliedAccent, fontSize: `${iconSize}px` }}></span>
+                <span className="md:text-base lg:text-lg" style={{ fontSize: `${textSize}px` }}>
+                  {data.address}
+                </span>
+              </div>
             </>
           ) : (
             <>
-                <div style={{ fontSize: sizeAddress }}><strong style={{ color: appliedAccent }}>✆</strong> {data.phone || "+91 00000 00000"}</div>
-                <div style={{ fontSize: sizeAddress }}><strong style={{ color: appliedAccent }}>⌂</strong> {data.website || "your-website.com"}</div>
-                <div style={{ fontSize: sizeAddress }}><strong style={{ color: appliedAccent }}>📍</strong> {data.address || "Your Address, City"}</div>
+              <div className="flex items-center gap-2 md:gap-3">
+                <span style={{ color: appliedAccent, fontSize: `${iconSize}px` }}></span>
+                <span className="md:text-base lg:text-lg" style={{ fontSize: `${textSize}px` }}>
+                  {data.phone || "+91 00000 00000"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 md:gap-3">
+                <span style={{ color: appliedAccent, fontSize: `${iconSize}px` }}></span>
+                <span className="md:text-base lg:text-lg" style={{ fontSize: `${textSize}px` }}>
+                  {data.website || "your-website.com"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 md:gap-3">
+                <span style={{ color: appliedAccent, fontSize: `${iconSize}px` }}></span>
+                <span className="md:text-base lg:text-lg" style={{ fontSize: `${textSize}px` }}>
+                  {data.address || "Your Address, City"}
+                </span>
+              </div>
             </>
           )}
         </div>
@@ -138,10 +159,12 @@ export const BackSideCard: React.FC<Props> = ({
       {(data.name || data.email) && (
         <div className="flex-shrink-0 bg-white/90 p-2 md:p-3 rounded-lg shadow-sm backdrop-blur-sm">
           <QRCodeSVG 
-            value={vCardData} 
-            size={sizeQR } 
+            value={vCardData}
+             size={window.innerWidth < 640 ? 60 : 90}  // 60px on mobile, 90px on desktop 
+            // size={qrSizeValue } 
             fgColor={qrColor}
             imageSettings={qrImageSettings}
+            className="w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] md:w-[90px] md:h-[90px]"
           />
         </div>
       )}
@@ -150,7 +173,7 @@ export const BackSideCard: React.FC<Props> = ({
 
   return (
     <div
-      className="w-full aspect-[1.75/1] p-4 md:p-6 relative overflow-hidden shadow-lg rounded-xl transition-all duration-300"
+      className="w-full aspect-[1.75/1] p-4 md:p-6 relative overflow-hidden rounded-xl transition-all duration-300"
       style={{
         ...bgStyle,
         color: appliedText,
