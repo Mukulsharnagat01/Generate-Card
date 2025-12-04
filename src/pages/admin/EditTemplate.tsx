@@ -268,43 +268,43 @@ const EditTemplate = () => {
                     qrLogoUrl={qrLogoUrl}
                   />
                 ) : (
-                                    <div className="w-full h-full flex items-center justify-end p-8">
-                                      <div className="flex flex-col text-right z-10">
-                                        <h3
-                    className="font-bold leading-tight mb-1"
-                    style={{
-                      color: fontColor,
-                      fontFamily,
-                      fontSize: fontSize + 8,  // Name bigger
-                    }}
-                  >
-                    {previewData.name}
-                  </h3>
+                  <div className="w-full h-full flex items-center justify-end p-8">
+                    <div className="flex flex-col text-right z-10">
+                      <h3
+                        className="font-bold leading-tight mb-1"
+                        style={{
+                          color: fontColor,
+                          fontFamily,
+                          fontSize: fontSize + 8,  // Name bigger
+                        }}
+                      >
+                        {previewData.name}
+                      </h3>
 
-                  <p
-                    className="font-medium mb-2"
-                    style={{
-                      color: accentColor,
-                      fontFamily,
-                      fontSize: fontSize + 4, // Title medium
-                    }}
-                  >
-                    {previewData.title}
-                  </p>
+                      <p
+                        className="font-medium mb-2"
+                        style={{
+                          color: accentColor,
+                          fontFamily,
+                          fontSize: fontSize + 4, // Title medium
+                        }}
+                      >
+                        {previewData.title}
+                      </p>
 
-                  <p
-                    className="opacity-75"
-                    style={{
-                      color: fontColor,
-                      fontFamily,
-                      fontSize: fontSize, // Company normal
-                    }}
-                  >
-                    {previewData.company}
-                  </p>
+                      <p
+                        className="opacity-75"
+                        style={{
+                          color: fontColor,
+                          fontFamily,
+                          fontSize: fontSize, // Company normal
+                        }}
+                      >
+                        {previewData.company}
+                      </p>
 
-                                      </div>
-                                    </div>
+                    </div>
+                  </div>
                   // <div id="front-card" className="w-full h-full relative">
                   //   {/* NAME */}
                   //   <div
@@ -397,11 +397,10 @@ const EditTemplate = () => {
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-3 text-sm font-medium capitalize transition-colors ${
-                    activeTab === tab
+                  className={`px-6 py-3 text-sm font-medium capitalize transition-colors ${activeTab === tab
                       ? "border-b-2 border-black text-black bg-white"
                       : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   {tab === "qr" ? "QR Code" : tab}
                 </button>
@@ -610,7 +609,7 @@ const EditTemplate = () => {
                         <option value="Courier New, monospace">
                           Courier (Retro)
                         </option>
-                         <option value="Roboto, sans-serif">Roboto (Modern)</option>
+                        <option value="Roboto, sans-serif">Roboto (Modern)</option>
                         <option value="Poppins, sans-serif">Poppins (Rounded Modern)</option>
                         <option value="Montserrat, sans-serif">Montserrat (Professional)</option>
                         <option value="Lato, sans-serif">Lato (Smooth)</option>
