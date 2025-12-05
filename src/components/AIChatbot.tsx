@@ -1028,7 +1028,7 @@ const AIChatbot: React.FC = () => {
             aria-modal="true"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-white">
+            {/* <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="bg-white/20 p-2 rounded-full">
@@ -1051,7 +1051,7 @@ const AIChatbot: React.FC = () => {
                   <X className="w-5 h-5" />
                 </button>
               </div>
-            </div>
+            </div> */}
 
             {/* Quick Questions Section */}
             <div className="p-2 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
