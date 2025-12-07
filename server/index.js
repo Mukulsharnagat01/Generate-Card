@@ -9,6 +9,8 @@ import uploadRoutes from './routes/upload.js';
 import contactRoutes from './routes/contact.js';
 import helmet from 'helmet';
 import paymentRoutes from './routes/payments.js';
+import cartRoutes from './routes/cart.js';
+
 
 const app = express();
 
@@ -57,6 +59,7 @@ app.use('/templates', templateRoutes);
 app.use('/upload', uploadRoutes);
 app.use('/contact', contactRoutes);
 app.use('/payments', paymentRoutes); // ⬅ new
+app.use('/api/cart', cartRoutes);
 
 
 // ✅ NEW: Root route to verify backend is working without crashing

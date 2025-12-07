@@ -5,7 +5,7 @@ import { classicTemplates } from "@/lib/classicTemplates";
 import { listAllTemplates, type Template } from "@/services/templates";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+// import { Download } from "lucide-react";
 import { saveAs } from "file-saver";
 
 interface CardData {
@@ -63,22 +63,22 @@ export default function MyOrders() {
 
   // Image-download removed: only PDF downloads are supported now.
 
-  const handleDownloadPdf = async (item: OrderedItem) => {
-    try {
-      if (!item.pdfUrl) {
-        alert("PDF not available for this card.");
-        return;
-      }
-      const res = await fetch(item.pdfUrl);
-      if (!res.ok) throw new Error("Failed to fetch PDF");
-      const blob = await res.blob();
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      saveAs(blob, `business-card-${item.templateId || 'download'}-${timestamp}.pdf`);
-    } catch (err) {
-      console.error('Error downloading pdf:', err);
-      alert('Failed to download PDF. Please try again.');
-    }
-  };
+  // const handleDownloadPdf = async (item: OrderedItem) => {
+  //   try {
+  //     if (!item.pdfUrl) {
+  //       alert("PDF not available for this card.");
+  //       return;
+  //     }
+  //     const res = await fetch(item.pdfUrl);
+  //     if (!res.ok) throw new Error("Failed to fetch PDF");
+  //     const blob = await res.blob();
+  //     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  //     saveAs(blob, `business-card-${item.templateId || 'download'}-${timestamp}.pdf`);
+  //   } catch (err) {
+  //     console.error('Error downloading pdf:', err);
+  //     alert('Failed to download PDF. Please try again.');
+  //   }
+  // };
 
   useEffect(() => {
     const load = async () => {
@@ -287,7 +287,7 @@ export default function MyOrders() {
                                   </Button>
                                   {/* Image downloads removed — only PDF download is available */}
 
-                                  {item.pdfUrl && (
+                                  {/* {item.pdfUrl && (
                                     <Button
                                       size="sm"
                                       variant="default"
@@ -300,7 +300,7 @@ export default function MyOrders() {
                                       <Download className="h-3.5 w-3.5" />
                                       PDF
                                     </Button>
-                                  )}
+                                  )} */}
                                 </div>
                               </div>
                             </div>
@@ -332,7 +332,7 @@ export default function MyOrders() {
 
               {/* Image download (removed). Use the 'Download PDF' button if available. */}
 
-              {selected.item.pdfUrl && (
+              {/* {selected.item.pdfUrl && (
                 <button
                   type="button"
                   className="absolute top-3 right-32 text-xs px-3 py-1 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 flex items-center gap-1"
@@ -341,7 +341,7 @@ export default function MyOrders() {
                   <Download className="h-3.5 w-3.5" />
                   <span>Download PDF</span>
                 </button>
-              )}
+              )} */}
 
               {(() => {
                 const payment = selected.payment;
