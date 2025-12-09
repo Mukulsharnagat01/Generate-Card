@@ -118,20 +118,13 @@ export const TemplateSelector = ({
     logo: 80
   };
 
-  // const defaultPositionsBack = {
-  //   email: { x: 10, y: 15 },
-  //   phone: { x: 10, y: 30 },
-  //   website: { x: 10, y: 45 },
-  //   address: { x: 10, y: 60 },
-  //   qr: { x: 60, y: 20 }
-  // };
   const defaultPositionsBack = {
-  email: { x: 10, y: 20 },    // Left aligned
-  phone: { x: 10, y: 35 },    // 15% spacing
-  website: { x: 10, y: 50 },  // 15% spacing
-  address: { x: 10, y: 65 },  // 15% spacing
-  qr: { x: 65, y: 30 }        // Right side for QR
-};
+    email: { x: 10, y: 15 },
+    phone: { x: 10, y: 30 },
+    website: { x: 10, y: 45 },
+    address: { x: 10, y: 60 },
+    qr: { x: 60, y: 20 }
+  };
 
   const defaultBackSizes = {
     email: 16,
@@ -1246,22 +1239,252 @@ export const TemplateSelector = ({
   //   }
   // };
 
-  const addToCart = async () => {
-    try {
-      const isServer = selectedTemplate.startsWith("sb:");
-      const serverId = isServer ? selectedTemplate.slice(3) : "";
-      const st = isServer ? sbTemplates.find(x => x.id === serverId) : undefined;
-      const classicConfig = !isServer ? classicTemplates.find(t => t.id === selectedTemplate) : undefined;
+//   const addToCart = async () => {
+//     try {
+//       const isServer = selectedTemplate.startsWith("sb:");
+//       const serverId = isServer ? selectedTemplate.slice(3) : "";
+//       const st = isServer ? sbTemplates.find(x => x.id === serverId) : undefined;
+//       const classicConfig = !isServer ? classicTemplates.find(t => t.id === selectedTemplate) : undefined;
 
-      const price = (isServer && st?.price) ? st.price : (pricePerItem || DEFAULT_PRICE);
+//       const price = (isServer && st?.price) ? st.price : (pricePerItem || DEFAULT_PRICE);
 
-      // ✅ QR Color
-      const qrColorFromConfig = isServer ? (st?.config?.qrColor || "#000000") : "#000000";
-      const qrLogoUrlFromConfig = isServer ? st?.config?.qrLogoUrl : undefined;
+//       // ✅ QR Color
+//       const qrColorFromConfig = isServer ? (st?.config?.qrColor || "#000000") : "#000000";
+//       const qrLogoUrlFromConfig = isServer ? st?.config?.qrLogoUrl : undefined;
 
-      // Generate vCard
-      const generateVCard = () => {
-        return `BEGIN:VCARD
+//       // Generate vCard
+//       const generateVCard = () => {
+//         return `BEGIN:VCARD
+// VERSION:3.0
+// FN:${data.name || 'Your Name'}
+// TITLE:${data.title || 'Job Title'}
+// ORG:${data.company || 'Company'}
+// EMAIL:${data.email || 'email@example.com'}
+// TEL:${data.phone || '+91 00000 00000'}
+// URL:${data.website || 'your-website.com'}
+// ADR:${data.address || 'Your Address, City'}
+// END:VCARD`;
+//       };
+
+//       let frontImageUrl = '';
+//       let backImageUrl = '';
+//       let thumbnailUrl = '';
+
+//       // Generate QR code
+//       const QRCode = (await import('qrcode')).default;
+//       const vCard = generateVCard();
+
+//       const qrDataUrl = await QRCode.toDataURL(vCard, {
+//         width: 200,
+//         margin: 1,
+//         color: {
+//           dark: qrColorFromConfig,
+//           light: "#FFFFFF"
+//         }
+//       });
+
+//       // Design data
+//       const designData = {
+//         positions,
+//         sizes,
+//         positionsBack,
+//         backSizes,
+//         font: selectedFont,
+//         fontSize,
+//         textColor,
+//         accentColor,
+//         isEditLayout: false,
+//         qrColor: qrColorFromConfig,
+//         qrLogoUrl: qrLogoUrlFromConfig,
+//         qrData: vCard,
+//       };
+
+//       // Generate card images
+//       const generateCardImage = async (side: 'front' | 'back'): Promise<string> => {
+//         try {
+//           const tempDiv = document.createElement('div');
+//           tempDiv.style.position = 'fixed';
+//           tempDiv.style.left = '-9999px';
+//           tempDiv.style.width = '560px';
+//           tempDiv.style.height = '320px';
+//           tempDiv.style.zIndex = '-1000';
+//           tempDiv.style.overflow = 'hidden';
+
+//           const cfg: any = st?.config || {};
+
+//           if (side === 'front') {
+//             const bg = st?.background_url;
+//             const fc = hasOverrides ? textColor : (cfg.fontColor || "#000000");
+//             const accent = hasOverrides ? accentColor : (cfg.accentColor || "#0ea5e9");
+//             const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
+
+//             tempDiv.innerHTML = `
+//             <div style="width: 560px; height: 320px; position: relative;
+//                         background: ${bg ? `url('${bg}')` : '#f3f4f6'};
+//                         background-size: cover; background-position: center;">
+//               ${data.logo ? `
+//               <div style="position: absolute; 
+//                           left: ${positions.logo.x}%; top: ${positions.logo.y}%;
+//                           width: ${sizes.logo}px; height: ${sizes.logo}px;
+//                           border-radius: 50%; overflow: hidden;
+//                           border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+//                 <img src="${data.logo}" alt="Logo" 
+//                      style="width: 100%; height: 100%; object-fit: cover;" 
+//                      crossorigin="anonymous" />
+//               </div>
+//               ` : ''}
+              
+//               <div style="position: absolute; 
+//                           left: ${positions.name.x}%; top: ${positions.name.y}%;
+//                           font-family: ${ff}; font-size: ${sizes.name}px; 
+//                           color: ${fc}; font-weight: bold;">
+//                 ${data.name || 'Your Name'}
+//               </div>
+              
+//               <div style="position: absolute; 
+//                           left: ${positions.title.x}%; top: ${positions.title.y}%;
+//                           font-family: ${ff}; font-size: ${sizes.title}px; 
+//                           color: ${accent};">
+//                 ${data.title || 'Job Title'}
+//               </div>
+              
+//               <div style="position: absolute; 
+//                           left: ${positions.company.x}%; top: ${positions.company.y}%;
+//                           font-family: ${ff}; font-size: ${sizes.company}px; 
+//                           color: ${fc}; opacity: 0.8;">
+//                 ${data.company || 'Company'}
+//               </div>
+//             </div>
+//           `;
+//           } else {
+//             const bg = st?.back_background_url || st?.background_url;
+//             const fc = hasOverrides ? textColor : (cfg.fontColor || "#000000");
+//             const accent = hasOverrides ? accentColor : (cfg.accentColor || "#0ea5e9");
+//             const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
+
+//             tempDiv.innerHTML = `
+//             <div style="width: 560px; height: 320px; position: relative;
+//                         background: ${bg ? `url('${bg}')` : '#f3f4f6'};
+//                         background-size: cover; background-position: center;
+//                         font-family: ${ff}; color: ${fc}; padding: 20px;">
+              
+//               <div style="margin-bottom: 15px; font-size: ${backSizes.email}px;">
+//                 <span style="color: ${accent}; margin-right: 10px;">✉</span>
+//                 ${data.email || 'email@example.com'}
+//               </div>
+              
+//               <div style="margin-bottom: 15px; font-size: ${backSizes.phone}px;">
+//                 <span style="color: ${accent}; margin-right: 10px;">✆</span>
+//                 ${data.phone || '+91 00000 00000'}
+//               </div>
+              
+//               ${data.website ? `
+//               <div style="margin-bottom: 15px; font-size: ${backSizes.website}px;">
+//                 <span style="color: ${accent}; margin-right: 10px;">⌂</span>
+//                 ${data.website}
+//               </div>
+//               ` : ''}
+              
+//               ${data.address ? `
+//               <div style="margin-bottom: 15px; font-size: ${backSizes.address}px;">
+//                 <span style="color: ${accent}; margin-right: 10px;">📍</span>
+//                 ${data.address}
+//               </div>
+//               ` : ''}
+              
+//               <div style="position: absolute; right: 30px; top: 50%;
+//                         transform: translateY(-50%); background: white; 
+//                         padding: 10px; border-radius: 8px;
+//                         box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+//                 <img src="${qrDataUrl}" alt="QR Code" 
+//                      style="width: ${backSizes.qr}px; height: ${backSizes.qr}px;"
+//                      crossorigin="anonymous" />
+//               </div>
+//             </div>
+//           `;
+//           }
+
+//           document.body.appendChild(tempDiv);
+
+//           // Wait for images
+//           await new Promise(resolve => setTimeout(resolve, 300));
+
+//           const canvas = await html2canvas(tempDiv, {
+//             scale: 2,
+//             useCORS: true,
+//             backgroundColor: null,
+//             logging: false,
+//             allowTaint: true
+//           } as any);
+
+//           document.body.removeChild(tempDiv);
+//           return canvas.toDataURL('image/png', 1.0);
+
+//         } catch (error) {
+//           console.error('Image generation error:', error);
+//           return createFallbackImage(side === 'front' ? 'Card Front' : 'Card Back');
+//         }
+//       };
+
+//       // Generate images
+//       try {
+//         frontImageUrl = await generateCardImage('front');
+//         backImageUrl = await generateCardImage('back');
+//         thumbnailUrl = frontImageUrl;
+//       } catch (error) {
+//         console.error('Failed to generate images:', error);
+//         frontImageUrl = await createFallbackImage(data.name || 'Business Card');
+//         backImageUrl = await createFallbackImage(`${data.name || 'Card'} Back`);
+//         thumbnailUrl = frontImageUrl;
+//       }
+
+//       // Add to cart
+//       cartCtx.add({
+//         id: selectedTemplate,
+//         kind: isServer ? "server" : "classic",
+//         data,
+//         selectedFont,
+//         fontSize,
+//         textColor,
+//         accentColor,
+//         price: price,
+//         serverMeta: isServer ? {
+//           name: st?.name,
+//           background_url: st?.background_url,
+//           back_background_url: st?.back_background_url,
+//           config: st?.config,
+//           qrColor: qrColorFromConfig,
+//           qrLogoUrl: qrLogoUrlFromConfig,
+//         } : undefined,
+//         design: designData,
+//         frontImageUrl,
+//         backImageUrl,
+//         thumbnailUrl,
+//         quantity: undefined,
+//         productId: undefined
+//       });
+
+//       alert('Item added to cart successfully!');
+//       navigate("/cart");
+
+//     } catch (error) {
+//       console.error('Error adding to cart:', error);
+//       alert('Failed to add item to cart. Please try again.');
+//     }
+//   };
+
+const addToCart = async () => {
+  try {
+    const isServer = selectedTemplate.startsWith("sb:");
+    const serverId = isServer ? selectedTemplate.slice(3) : "";
+    const st = isServer ? sbTemplates.find(x => x.id === serverId) : undefined;
+    const classicConfig = !isServer ? classicTemplates.find(t => t.id === selectedTemplate) : undefined;
+
+    const price = (isServer && st?.price) ? st.price : (pricePerItem || DEFAULT_PRICE);
+
+    // ✅ FIX: Generate vCard FIRST, before using it
+    const generateVCard = () => {
+      return `BEGIN:VCARD
 VERSION:3.0
 FN:${data.name || 'Your Name'}
 TITLE:${data.title || 'Job Title'}
@@ -1271,17 +1494,19 @@ TEL:${data.phone || '+91 00000 00000'}
 URL:${data.website || 'your-website.com'}
 ADR:${data.address || 'Your Address, City'}
 END:VCARD`;
-      };
+    };
 
-      let frontImageUrl = '';
-      let backImageUrl = '';
-      let thumbnailUrl = '';
-
-      // Generate QR code
+    // ✅ DECLARE vCard here (BEFORE using it)
+    let vCard = "";
+    let qrDataUrl = "";
+    
+    // Generate QR code if needed
+    if (isServer || classicConfig) {
       const QRCode = (await import('qrcode')).default;
-      const vCard = generateVCard();
-
-      const qrDataUrl = await QRCode.toDataURL(vCard, {
+      vCard = generateVCard();
+      const qrColorFromConfig = isServer ? (st?.config?.qrColor || "#000000") : "#000000";
+      
+      qrDataUrl = await QRCode.toDataURL(vCard, {
         width: 200,
         margin: 1,
         color: {
@@ -1289,43 +1514,61 @@ END:VCARD`;
           light: "#FFFFFF"
         }
       });
+    }
 
-      // Design data
-      const designData = {
-        positions,
-        sizes,
-        positionsBack,
-        backSizes,
-        font: selectedFont,
-        fontSize,
-        textColor,
-        accentColor,
-        isEditLayout: false,
-        qrColor: qrColorFromConfig,
-        qrLogoUrl: qrLogoUrlFromConfig,
-        qrData: vCard,
-      };
+    // ✅ NOW you can use vCard safely
+    const designData = {
+      positions,
+      sizes,
+      positionsBack,
+      backSizes,
+      font: selectedFont,
+      fontSize,
+      textColor,
+      accentColor,
+      isEditLayout: false,
+      qrColor: isServer ? (st?.config?.qrColor || "#000000") : "#000000",
+      qrLogoUrl: isServer ? st?.config?.qrLogoUrl : undefined,
+      qrData: vCard, // ✅ Now vCard is defined
+    };
+    let frontImageUrl = '';
+    let backImageUrl = '';
+    let thumbnailUrl = '';
 
-      // Generate card images
-      const generateCardImage = async (side: 'front' | 'back'): Promise<string> => {
-        try {
-          const tempDiv = document.createElement('div');
-          tempDiv.style.position = 'fixed';
-          tempDiv.style.left = '-9999px';
-          tempDiv.style.width = '560px';
-          tempDiv.style.height = '320px';
-          tempDiv.style.zIndex = '-1000';
-          tempDiv.style.overflow = 'hidden';
+    // Generate QR code
+    const QRCode = (await import('qrcode')).default;
+    // const vCard = generateVCard();
+    const qrColorFromConfig = isServer ? (st?.config?.qrColor || "#000000") : "#000000";
+    
+    // const qrDataUrl = await QRCode.toDataURL(vCard, {
+    //   width: 200,
+    //   margin: 1,
+    //   color: {
+    //     dark: qrColorFromConfig,
+    //     light: "#FFFFFF"
+    //   }
+    // });
 
+    // Generate card images with PROPER POSITIONS
+    const generateCardImage = async (side: 'front' | 'back'): Promise<string> => {
+      try {
+        const tempDiv = document.createElement('div');
+        tempDiv.style.position = 'fixed';
+        tempDiv.style.left = '-9999px';
+        tempDiv.style.width = '560px';
+        tempDiv.style.height = '320px';
+        tempDiv.style.zIndex = '-1000';
+        tempDiv.style.overflow = 'hidden';
+
+        if (side === 'front') {
+          // Front side with CURRENT positions
+          const bg = st?.background_url;
           const cfg: any = st?.config || {};
+          const fc = hasOverrides ? textColor : (cfg.fontColor || "#000000");
+          const accent = hasOverrides ? accentColor : (cfg.accentColor || "#0ea5e9");
+          const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
 
-          if (side === 'front') {
-            const bg = st?.background_url;
-            const fc = hasOverrides ? textColor : (cfg.fontColor || "#000000");
-            const accent = hasOverrides ? accentColor : (cfg.accentColor || "#0ea5e9");
-            const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
-
-            tempDiv.innerHTML = `
+          tempDiv.innerHTML = `
             <div style="width: 560px; height: 320px; position: relative;
                         background: ${bg ? `url('${bg}')` : '#f3f4f6'};
                         background-size: cover; background-position: center;">
@@ -1363,120 +1606,142 @@ END:VCARD`;
               </div>
             </div>
           `;
-          } else {
-            const bg = st?.back_background_url || st?.background_url;
-            const fc = hasOverrides ? textColor : (cfg.fontColor || "#000000");
-            const accent = hasOverrides ? accentColor : (cfg.accentColor || "#0ea5e9");
-            const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
+        } else {
+          // Back side with CURRENT positions - THIS IS CRITICAL
+          const bg = st?.back_background_url || st?.background_url;
+          const cfg: any = st?.config || {};
+          const fc = hasOverrides ? textColor : (cfg.fontColor || "#000000");
+          const accent = hasOverrides ? accentColor : (cfg.accentColor || "#0ea5e9");
+          const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
 
-            tempDiv.innerHTML = `
+          tempDiv.innerHTML = `
             <div style="width: 560px; height: 320px; position: relative;
                         background: ${bg ? `url('${bg}')` : '#f3f4f6'};
                         background-size: cover; background-position: center;
-                        font-family: ${ff}; color: ${fc}; padding: 20px;">
+                        font-family: ${ff}; color: ${fc};">
               
-              <div style="margin-bottom: 15px; font-size: ${backSizes.email}px;">
+              <!-- Email with position -->
+              <div style="position: absolute; 
+                          left: ${positionsBack.email.x}%; top: ${positionsBack.email.y}%;
+                          font-size: ${backSizes.email}px;">
                 <span style="color: ${accent}; margin-right: 10px;">✉</span>
                 ${data.email || 'email@example.com'}
               </div>
               
-              <div style="margin-bottom: 15px; font-size: ${backSizes.phone}px;">
+              <!-- Phone with position -->
+              <div style="position: absolute; 
+                          left: ${positionsBack.phone.x}%; top: ${positionsBack.phone.y}%;
+                          font-size: ${backSizes.phone}px;">
                 <span style="color: ${accent}; margin-right: 10px;">✆</span>
                 ${data.phone || '+91 00000 00000'}
               </div>
               
               ${data.website ? `
-              <div style="margin-bottom: 15px; font-size: ${backSizes.website}px;">
+              <!-- Website with position -->
+              <div style="position: absolute; 
+                          left: ${positionsBack.website.x}%; top: ${positionsBack.website.y}%;
+                          font-size: ${backSizes.website}px;">
                 <span style="color: ${accent}; margin-right: 10px;">⌂</span>
                 ${data.website}
               </div>
               ` : ''}
               
               ${data.address ? `
-              <div style="margin-bottom: 15px; font-size: ${backSizes.address}px;">
+              <!-- Address with position -->
+              <div style="position: absolute; 
+                          left: ${positionsBack.address.x}%; top: ${positionsBack.address.y}%;
+                          font-size: ${backSizes.address}px;">
                 <span style="color: ${accent}; margin-right: 10px;">📍</span>
                 ${data.address}
               </div>
               ` : ''}
               
-              <div style="position: absolute; right: 30px; top: 50%;
-                        transform: translateY(-50%); background: white; 
-                        padding: 10px; border-radius: 8px;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+              <!-- QR Code with position -->
+              <div style="position: absolute; 
+                          left: ${positionsBack.qr.x}%; top: ${positionsBack.qr.y}%;
+                          background: white; padding: 10px; border-radius: 8px;
+                          box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                 <img src="${qrDataUrl}" alt="QR Code" 
                      style="width: ${backSizes.qr}px; height: ${backSizes.qr}px;"
                      crossorigin="anonymous" />
               </div>
             </div>
           `;
-          }
-
-          document.body.appendChild(tempDiv);
-
-          // Wait for images
-          await new Promise(resolve => setTimeout(resolve, 300));
-
-          const canvas = await html2canvas(tempDiv, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: null,
-            logging: false,
-            allowTaint: true
-          } as any);
-
-          document.body.removeChild(tempDiv);
-          return canvas.toDataURL('image/png', 1.0);
-
-        } catch (error) {
-          console.error('Image generation error:', error);
-          return createFallbackImage(side === 'front' ? 'Card Front' : 'Card Back');
         }
-      };
 
-      // Generate images
-      try {
-        frontImageUrl = await generateCardImage('front');
-        backImageUrl = await generateCardImage('back');
-        thumbnailUrl = frontImageUrl;
+        document.body.appendChild(tempDiv);
+
+        // Wait for images to load
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const canvas = await html2canvas(tempDiv, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: null,
+          logging: false,
+          allowTaint: true
+        } as any);
+
+        document.body.removeChild(tempDiv);
+        return canvas.toDataURL('image/png', 1.0);
+
       } catch (error) {
-        console.error('Failed to generate images:', error);
-        frontImageUrl = await createFallbackImage(data.name || 'Business Card');
-        backImageUrl = await createFallbackImage(`${data.name || 'Card'} Back`);
-        thumbnailUrl = frontImageUrl;
+        console.error('Image generation error:', error);
+        return createFallbackImage(side === 'front' ? 'Card Front' : 'Card Back');
       }
+    };
 
-      // Add to cart
-      cartCtx.add({
-        id: selectedTemplate,
-        kind: isServer ? "server" : "classic",
-        data,
-        selectedFont,
-        fontSize,
-        textColor,
-        accentColor,
-        price: price,
-        serverMeta: isServer ? {
-          name: st?.name,
-          background_url: st?.background_url,
-          back_background_url: st?.back_background_url,
-          config: st?.config,
-          qrColor: qrColorFromConfig,
-          qrLogoUrl: qrLogoUrlFromConfig,
-        } : undefined,
-        design: designData,
-        frontImageUrl,
-        backImageUrl,
-        thumbnailUrl
-      });
-
-      alert('Item added to cart successfully!');
-      navigate("/cart");
-
+    // Generate images
+    try {
+      frontImageUrl = await generateCardImage('front');
+      backImageUrl = await generateCardImage('back');
+      thumbnailUrl = frontImageUrl;
     } catch (error) {
-      console.error('Error adding to cart:', error);
-      alert('Failed to add item to cart. Please try again.');
+      console.error('Failed to generate images:', error);
+      frontImageUrl = await createFallbackImage(data.name || 'Business Card');
+      backImageUrl = await createFallbackImage(`${data.name || 'Card'} Back`);
+      thumbnailUrl = frontImageUrl;
     }
-  };
+
+    // Add to cart with ALL design data
+    cartCtx.add({
+      id: selectedTemplate,
+      kind: isServer ? "server" : "classic",
+      data,
+      selectedFont,
+      fontSize,
+      textColor,
+      accentColor,
+      price: price,
+      serverMeta: isServer ? {
+        name: st?.name,
+        background_url: st?.background_url,
+        back_background_url: st?.back_background_url,
+        config: st?.config,
+        qrColor: isServer ? (st?.config?.qrColor || "#000000") : "#000000",
+        qrLogoUrl: isServer ? st?.config?.qrLogoUrl : undefined,
+      } : undefined,
+      
+      // ✅ CRITICAL: Save ALL design data
+      design: designData,
+      
+      // ✅ Save generated images
+      frontImageUrl,
+      backImageUrl,
+      thumbnailUrl,
+      
+      quantity: undefined,
+      productId: undefined
+    });
+
+    alert('Item added to cart successfully!');
+    navigate("/cart");
+
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    alert('Failed to add item to cart. Please try again.');
+  }
+};
 
 
   const buyCurrent = () => {
@@ -1530,6 +1795,8 @@ END:VCARD`;
           : undefined,
         frontData: designFront,
         backData: designBack,
+        quantity: undefined,
+        productId: undefined
       });
 
       navigate("/checkout");
@@ -2212,7 +2479,7 @@ END:VCARD`;
                                 position: 'absolute',
                                 left: `${effectivePositionsBack.email.x}%`,
                                 top: `${effectivePositionsBack.email.y}%`,
-                                  fontSize: `${effectiveBackSizes.email * previewScale}px`,
+                                fontSize: `${effectiveBackSizes.email}px`,
                                 fontFamily: ff,
                                 color: fc,
                               }}
@@ -2641,6 +2908,7 @@ END:VCARD`;
     </div>
   );
 };
+
 
 const createFallbackImage = (text: string, width = 560, height = 320): string => {
   const canvas = document.createElement('canvas');
