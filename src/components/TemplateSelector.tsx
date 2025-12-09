@@ -1748,7 +1748,7 @@ export const TemplateSelector = ({
     phone: 16,
     website: 16,
     address: 16,
-    qr: 120
+    qr: 160
   };
 
   // Use saved positions from config or defaults
@@ -1972,7 +1972,7 @@ export const TemplateSelector = ({
     root.style.setProperty('--preview-scale-factor', scale.toString());
     
     // For mobile devices, adjust font scaling
-    const fontScale = isMobile ? scale * 0.9 : scale * 0.8;
+    const fontScale = isMobile ? scale * 0.9 : scale * 1.3;
     root.style.setProperty('--font-scale-factor', fontScale.toString());
   
     };
@@ -2611,6 +2611,8 @@ END:VCARD`;
                     </>
                   );
                 }
+
+
 
                 // Server-side template rendering
                 const sid = selectedTemplate.slice(3);
