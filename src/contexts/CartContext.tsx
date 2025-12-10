@@ -484,8 +484,8 @@ export type CartItem = {
   frontImageUrl?: string | null;
   backImageUrl?: string | null;
   thumbnailUrl?: string | null;
-  frontData?: any | null;
-  backData?: any | null;
+  frontData?: any;
+  backData?: any;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -506,10 +506,23 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 // ✅ MongoDB cart APIs
+// const fetchCartFromServer = async (): Promise<CartItem[]> => {
+//   try {
+//     const response = await apiFetch('/api/cart');
+//     return response.data || [];
+//   } catch (error) {
+//     console.error('Failed to fetch cart from server:', error);
+//     return [];
+//   }
+// };
 const fetchCartFromServer = async (): Promise<CartItem[]> => {
   try {
     const response = await apiFetch('/api/cart');
-    return response.data || [];
+    // ✅ Check karein ki items array exist karta hai ya nahi
+    if (response.data && Array.isArray(response.data.items)) {
+      return response.data.items;
+    }
+    return [];
   } catch (error) {
     console.error('Failed to fetch cart from server:', error);
     return [];
@@ -545,26 +558,26 @@ const saveCartToServer = async (items: CartItem[]): Promise<boolean> => {
 // In addItemToServer function, check what you're sending:
 const addItemToServer = async (item: CartItem) => {
   // Log the payload size
-  const payload = JSON.stringify(item);
-  console.log('Payload size:', payload.length, 'bytes');
+  // const payload = JSON.stringify(item);
+  // console.log('Payload size:', payload.length, 'bytes');
   
-  if (payload.length > 100000) { // > 100KB
-    console.warn('Payload is large:', payload.length, 'bytes');
-    // Consider trimming unnecessary data
-    const minimalItem = {
-      productId: item.productId,
-      quantity: item.quantity,
-      // Only include essential fields
-    };
-    return apiFetch('/api/cart/items', {
-      method: 'POST',
-      body: JSON.stringify(minimalItem),
-    });
-  }
+  // if (payload.length > 100000) { // > 100KB
+  //   console.warn('Payload is large:', payload.length, 'bytes');
+  //   // Consider trimming unnecessary data
+  //   const minimalItem = {
+  //     productId: item.productId,
+  //     quantity: item.quantity,
+  //     // Only include essential fields
+  //   };
+  //   return apiFetch('/api/cart/items', {
+  //     method: 'POST',
+  //     body: JSON.stringify(minimalItem),
+  //   });
+  // }
   
   return apiFetch('/api/cart/items', {
     method: 'POST',
-    body: JSON.stringify(item),
+    body: JSON.stringify({ item }),
   });
 };
 
@@ -620,50 +633,150 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   // ✅ 2. Add item to cart
-  const add = async (itemData: Omit<CartItem, 'id'> & { id?: string }) => {
-    const id = itemData.id || `card_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-    
-    const newItem: CartItem = {
-      ...itemData as CartItem,
-      id,
+  // const add = async (itemData: Omit<CartItem, 'id'> & { id?: string }) => {
+   const add = async (itemData: any) => {
+    // const id = itemData.id || `card_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+    // const generatedId = itemData.id || `card_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+     const generatedId = itemData.id || `card_${Date.now()}`;
+
+    // const newItem: CartItem = {
+    //   ...itemData as CartItem,
+    //   // id,
+    //   id: generatedId,
+    //    productId: itemData.productId || itemData.id || generatedId, // Required field
+    //   quantity: 1,
+    //   createdAt: new Date(),
+    //   updatedAt: new Date(),
+
+    //   // ✅ Images Explicitly Pass Karein
+    //   frontImageUrl: itemData.frontImageUrl, // Yeh URL/Base64 yahan aayega
+    //   backImageUrl: itemData.backImageUrl,   // Yeh URL/Base64 yahan aayega
+    //   thumbnailUrl: itemData.thumbnailUrl || itemData.frontImageUrl,
+
+    //   design: itemData.design || {
+    //     positions: itemData.frontData?.positions || defaultPositions,
+    //     sizes: itemData.frontData?.sizes || defaultSizes,
+    //     positionsBack: itemData.backData?.positionsBack || defaultPositionsBack,
+    //     backSizes: itemData.backData?.backSizes || defaultBackSizes,
+    //     font: itemData.selectedFont || "Arial, sans-serif",
+    //     fontSize: itemData.fontSize || 16,
+    //     textColor: itemData.textColor || "#000000",
+    //     accentColor: itemData.accentColor || "#0ea5e9",
+    //     isEditLayout: false,
+    //     qrColor: itemData.serverMeta?.qrColor || "#000000",
+    //     qrLogoUrl: itemData.serverMeta?.qrLogoUrl,
+    //     // qrData: itemData.design?.qrData || `BEGIN:VCARD\nVERSION:3.0\nFN:${itemData.data?.name || 'Name'}\nEND:VCARD`,
+    //     qrData: itemData.design?.qrData,
+    //   },
+    // };
+     const newItem = {
+      id: generatedId,
+      productId: itemData.productId || generatedId,
+      kind: itemData.kind,
+      quantity: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
-      design: itemData.design || {
-        positions: itemData.frontData?.positions || defaultPositions,
-        sizes: itemData.frontData?.sizes || defaultSizes,
-        positionsBack: itemData.backData?.positionsBack || defaultPositionsBack,
-        backSizes: itemData.backData?.backSizes || defaultBackSizes,
-        font: itemData.selectedFont || "Arial, sans-serif",
-        fontSize: itemData.fontSize || 16,
-        textColor: itemData.textColor || "#000000",
-        accentColor: itemData.accentColor || "#0ea5e9",
-        isEditLayout: false,
-        qrColor: itemData.serverMeta?.qrColor || "#000000",
-        qrLogoUrl: itemData.serverMeta?.qrLogoUrl,
-        qrData: itemData.design?.qrData || `BEGIN:VCARD\nVERSION:3.0\nFN:${itemData.data?.name || 'Name'}\nEND:VCARD`,
+      
+      // User Data
+      data: itemData.data,
+      
+      // Styles
+      selectedFont: itemData.selectedFont,
+      fontSize: itemData.fontSize,
+      textColor: itemData.textColor,
+      accentColor: itemData.accentColor,
+      price: itemData.price,
+
+      // ✅ Images (Ye ab save honge)
+      frontImageUrl: itemData.frontImageUrl || "", 
+      backImageUrl: itemData.backImageUrl || "",
+      thumbnailUrl: itemData.thumbnailUrl || itemData.frontImageUrl || "",
+
+      // Design Positions (Jo aapke dump me frontData/backData me dikh rahe hain)
+      frontData: itemData.frontData || itemData.design, // Fallback to design if frontData missing
+      backData: itemData.backData || {
+         positionsBack: itemData.design?.positionsBack,
+         backSizes: itemData.design?.backSizes
       },
+
+       design: itemData.design,
+
+      // Server Meta
+      serverMeta: itemData.serverMeta,
     };
 
+    // Basic Style Data
+      // selectedFont: itemData.selectedFont,
+      // fontSize: itemData.fontSize,
+      // textColor: itemData.textColor,
+      // accentColor: itemData.accentColor,
+    // };
+
+    const currentItems = Array.isArray(items) ? items : [];
     const updatedItems = [...items, newItem];
     setItems(updatedItems);
 
     // ✅ Save to MongoDB if user is logged in
+  //   if (user) {
+  //     try {
+  //       await addItemToServer(newItem);
+  //       console.log('✅ Item added to MongoDB cart');
+  //     } catch (error) {
+  //       console.error('❌ Failed to save to MongoDB:', error);
+  //       // Fallback: Save to server's array
+  //       await saveCartToServer(updatedItems);
+  //     }
+  //   } else {
+  //     // Guest: Save to localStorage cache
+  //     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(updatedItems));
+  //   }
+    
+  //   console.log('➕ Item added to cart:', newItem.id);
+  // };
+
+  // if (user) {
+  //     try {
+  //       console.log("Saving to MongoDB with images...", newItem.frontImageUrl ? "Has Front Image" : "No Front Image");
+  //       await addItemToServer(newItem);
+  //       console.log('✅ Item saved to MongoDB cart successfully');
+  //     } catch (error) {
+  //       console.error('❌ Failed to save to MongoDB:', error);
+  //     }
+  //   } else {
+  //     // Guest users ke liye local storage
+  //     localStorage.setItem('cart_sync_cache', JSON.stringify(updatedItems));
+  //   }
+  // };
+  // if (user) {
+  //     try {
+  //       // Direct API call
+  //       await apiFetch('/api/cart/items', {
+  //         method: 'POST',
+  //         body: JSON.stringify({ item: newItem }), // Wrapper ensure karein
+  //       });
+  //       console.log('✅ Cart Item saved with Images to DB');
+  //     } catch (error) {
+  //       console.error('❌ Failed to save to MongoDB:', error);
+  //     }
+  //   } else {
+  //     localStorage.setItem('cart_sync_cache', JSON.stringify(updatedItems));
+  //   }
+  // };
     if (user) {
       try {
+        console.log("Saving to MongoDB with images...");
         await addItemToServer(newItem);
-        console.log('✅ Item added to MongoDB cart');
+        console.log('✅ Item saved to MongoDB cart successfully');
       } catch (error) {
         console.error('❌ Failed to save to MongoDB:', error);
-        // Fallback: Save to server's array
+        // Fallback: Agar single item add fail ho, toh pura array save karo
         await saveCartToServer(updatedItems);
       }
     } else {
-      // Guest: Save to localStorage cache
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(updatedItems));
     }
-    
-    console.log('➕ Item added to cart:', newItem.id);
   };
+
 
   // ✅ 3. Remove item from cart
   const remove = async (id: string) => {

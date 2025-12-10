@@ -1482,6 +1482,28 @@ const addToCart = async () => {
 
     const price = (isServer && st?.price) ? st.price : (pricePerItem || DEFAULT_PRICE);
 
+    // Structure for frontData (Positions & Sizes)
+      const frontDataPayload = {
+        positions: positions,
+        sizes: sizes,
+        font: selectedFont,
+        fontSize: fontSize,
+        textColor: textColor,
+        accentColor: accentColor,
+        isEditLayout: isEditLayout
+      };
+
+      // Structure for backData
+      const backDataPayload = {
+        positionsBack: positionsBack,
+        backSizes: backSizes,
+        font: selectedFont,
+        fontSize: fontSize,
+        textColor: textColor,
+        accentColor: accentColor,
+        isEditLayout: isEditLayout
+      };
+
     // ✅ FIX: Generate vCard FIRST, before using it
     const generateVCard = () => {
       return `BEGIN:VCARD
@@ -1526,7 +1548,7 @@ END:VCARD`;
       fontSize,
       textColor,
       accentColor,
-      isEditLayout: false,
+      isEditLayout: isEditLayout,
       qrColor: isServer ? (st?.config?.qrColor || "#000000") : "#000000",
       qrLogoUrl: isServer ? st?.config?.qrLogoUrl : undefined,
       qrData: vCard, // ✅ Now vCard is defined
@@ -1691,6 +1713,14 @@ END:VCARD`;
       }
     };
 
+     let fImg = '', bImg = '';
+      try {
+         fImg = await generateCardImage('front');
+         bImg = await generateCardImage('back');
+      } catch(e) {
+         console.error("Image gen error", e);
+      }
+
     // Generate images
     try {
       frontImageUrl = await generateCardImage('front');
@@ -1706,13 +1736,19 @@ END:VCARD`;
     // Add to cart with ALL design data
     cartCtx.add({
       id: selectedTemplate,
+      productId: selectedTemplate,
       kind: isServer ? "server" : "classic",
-      data,
+      data: data,
       selectedFont,
       fontSize,
       textColor,
       accentColor,
       price: price,
+      frontImageUrl: fImg, 
+        backImageUrl: bImg,
+        thumbnailUrl: fImg,
+ frontData: frontDataPayload,
+        backData: backDataPayload,
       serverMeta: isServer ? {
         name: st?.name,
         background_url: st?.background_url,
@@ -1726,12 +1762,15 @@ END:VCARD`;
       design: designData,
       
       // ✅ Save generated images
-      frontImageUrl,
-      backImageUrl,
-      thumbnailUrl,
+      // frontImageUrl,
+      // backImageUrl,
+      // thumbnailUrl,
+      frontImageUrl: frontImageUrl, 
+        backImageUrl: backImageUrl,
+        thumbnailUrl: frontImageUrl,
       
-      quantity: undefined,
-      productId: undefined
+      quantity: 1,
+      
     });
 
     alert('Item added to cart successfully!');
