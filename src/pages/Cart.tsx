@@ -34,12 +34,18 @@ export default function CartPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
-            <h1
+            {/* <h1
               className="text-2xl lg:text-4xl font-bold text-blue-700 cursor-pointer select-none"
               onClick={() => navigate("/")}
             >
               Businesscard
-            </h1>
+            </h1> */}
+            <img
+  src="/logo.png"
+  alt="Businesscard Logo"
+  className="h-10 lg:h-14 cursor-pointer"
+  onClick={() => navigate("/")}
+/>
 
             {/* Desktop Search */}
             <div className="hidden lg:flex flex-1 max-w-2xl mx-10">
