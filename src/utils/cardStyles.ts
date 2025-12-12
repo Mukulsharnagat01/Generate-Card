@@ -42,6 +42,5 @@ export const getCardStyles = (item: CartItem) => {
       padding: '8px',
       borderRadius: '8px'
     },
-    // Add more style blocks as needed
   };
 };

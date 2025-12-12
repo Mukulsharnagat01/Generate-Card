@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Search, ShoppingBag, X, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CardPreviewWithDesign } from "@/components/CardPreviewWithDesign";
+import Footer from "@/components/Footer";
 
 export default function CartPage() {
   const { items, remove, total, isLoading, clearCache } = useCart();
@@ -183,14 +184,6 @@ export default function CartPage() {
                     <h2 className="text-xl lg:text-2xl font-bold text-gray-800">
                       My Cart ({items.length} {items.length > 1 ? "Items" : "Item"})
                     </h2>
-                    <button
-                      onClick={clearCache}
-                      className="text-sm text-red-600 hover:text-red-800 flex items-center gap-1"
-                      title="Clear cart storage"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Clear Storage
-                    </button>
                   </div>
 
                   <div className="space-y-6">
@@ -367,6 +360,7 @@ export default function CartPage() {
           )}
         </div>
       </div>
+      <Footer />
     </>
   );
 }

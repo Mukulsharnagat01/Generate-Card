@@ -1,6 +1,5 @@
-// services/cloudinary.ts
-const CLOUDINARY_CLOUD_NAME =  process.env.CLOUDINARY_CLOUD_NAME; // Replace with your Cloudinary cloud name
-const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET; // Replace with your upload preset
+const CLOUDINARY_CLOUD_NAME =  process.env.CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = process.env.CLOUDINARY_UPLOAD_PRESET; 
 
 export const uploadToCloudinary = async (file: File | Blob, fileName: string = 'card'): Promise<string> => {
   const formData = new FormData();

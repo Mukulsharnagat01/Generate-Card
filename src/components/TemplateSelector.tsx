@@ -14,8 +14,8 @@ import { apiFetch } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog";
 import { CustomizationPanel } from "./CustomizationPanel";
-import { generateCardImage } from "@/services/imageGenerator"; // Add this import
-import QRCode from 'qrcode'; // For generating QR code data URLs
+import { generateCardImage } from "@/services/imageGenerator"; 
+import QRCode from 'qrcode'; 
 import html2canvas from 'html2canvas';
 
 declare global {
@@ -57,6 +57,7 @@ export const TemplateSelector = ({
   const previewContainerRef = useRef<HTMLDivElement | null>(null);
   const [previewScale, setPreviewScale] = useState(1);
 
+  const [showCartSuccess, setShowCartSuccess] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0]?.id ?? "classic-001");
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const previewRef = useRef<HTMLDivElement>(null);
@@ -418,16 +419,248 @@ export const TemplateSelector = ({
     setIsEditLayout(false);
   }, [selectedTemplate, sbTemplates]);
 
-const addToCart = async () => {
-  try {
+  const [isUploading, setIsUploading] = useState(false); 
+
+  const generateVCard1 = () => {
+    return `BEGIN:VCARD
+VERSION:3.0
+FN:${data.name || 'Your Name'}
+TITLE:${data.title || 'Job Title'}
+ORG:${data.company || 'Company'}
+EMAIL:${data.email || 'email@example.com'}
+TEL:${data.phone || '+91 00000 00000'}
+URL:${data.website || 'your-website.com'}
+ADR:${data.address || 'Your Address, City'}
+END:VCARD`;
+  };
+
+
+  //  Optimized function to generate card images
+  const generateCardImages = async (): Promise<{front: string, back: string, thumbnail: string}> => {
     const isServer = selectedTemplate.startsWith("sb:");
     const serverId = isServer ? selectedTemplate.slice(3) : "";
     const st = isServer ? sbTemplates.find(x => x.id === serverId) : undefined;
-    const classicConfig = !isServer ? classicTemplates.find(t => t.id === selectedTemplate) : undefined;
+    
+    // Generate vCard for QR code
+     const generateVCard = (): string => {
+      return `BEGIN:VCARD
+VERSION:3.0
+FN:${data.name || 'Your Name'}
+TITLE:${data.title || 'Job Title'}
+ORG:${data.company || 'Company'}
+EMAIL:${data.email || 'email@example.com'}
+TEL:${data.phone || '+91 00000 00000'}
+URL:${data.website || 'your-website.com'}
+ADR:${data.address || 'Your Address, City'}
+END:VCARD`;
+    };
+    
+    const vCard = generateVCard();
+    const qrColor = isServer ? (st?.config?.qrColor || "#000000") : "#000000";
+    
+    // Generate QR code
+    const QRCodeLib = (await import('qrcode')).default;
+    const qrDataUrl = await QRCodeLib.toDataURL(vCard, {
+      width: 200,
+      margin: 1,
+      color: {
+        dark: qrColor,
+        light: "#FFFFFF"
+      }
+    });
 
-    const price = (isServer && st?.price) ? st.price : (pricePerItem || DEFAULT_PRICE);
+    // Function to create HTML element for a card side
+    const createCardSideHTML = async (side: 'front' | 'back'): Promise<string> => {
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.width = '560px';
+      tempDiv.style.height = '320px';
+      tempDiv.style.zIndex = '-1000';
+      tempDiv.style.overflow = 'hidden';
 
-    // Structure for frontData (Positions & Sizes)
+      if (side === 'front') {
+        // Front side with current positions
+        const bg = isServer ? (st?.background_url) : undefined;
+        const cfg: any = st?.config || {};
+        const fc = hasOverrides ? textColor : (cfg.fontColor || "#000000");
+        const accent = hasOverrides ? accentColor : (cfg.accentColor || "#0ea5e9");
+        const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
+
+        tempDiv.innerHTML = `
+          <div style="width: 560px; height: 320px; position: relative;
+                      background: ${bg ? `url('${bg}')` : '#f3f4f6'};
+                      background-size: cover; background-position: center;">
+            ${data.logo ? `
+            <div style="position: absolute; 
+                        left: ${positions.logo.x}%; top: ${positions.logo.y}%;
+                        width: ${sizes.logo}px; height: ${sizes.logo}px;
+                        border-radius: 50%; overflow: hidden;
+                        border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+              <img src="${data.logo}" alt="Logo" 
+                   style="width: 100%; height: 100%; object-fit: cover;" 
+                   crossorigin="anonymous" />
+            </div>
+            ` : ''}
+            
+            <div style="position: absolute; 
+                        left: ${positions.name.x}%; top: ${positions.name.y}%;
+                        font-family: ${ff}; font-size: ${sizes.name}px; 
+                        color: ${fc}; font-weight: bold;">
+              ${data.name || 'Your Name'}
+            </div>
+            
+            <div style="position: absolute; 
+                        left: ${positions.title.x}%; top: ${positions.title.y}%;
+                        font-family: ${ff}; font-size: ${sizes.title}px; 
+                        color: ${accent};">
+              ${data.title || 'Job Title'}
+            </div>
+            
+            <div style="position: absolute; 
+                        left: ${positions.company.x}%; top: ${positions.company.y}%;
+                        font-family: ${ff}; font-size: ${sizes.company}px; 
+                        color: ${fc}; opacity: 0.8;">
+              ${data.company || 'Company'}
+            </div>
+          </div>
+        `;
+      } else {
+        // Back side with current positions
+        const bg = isServer ? (st?.back_background_url || st?.background_url) : undefined;
+        const cfg: any = st?.config || {};
+        const fc = hasOverrides ? textColor : (cfg.fontColor || "#000000");
+        const accent = hasOverrides ? accentColor : (cfg.accentColor || "#0ea5e9");
+        const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
+
+        tempDiv.innerHTML = `
+          <div style="width: 560px; height: 320px; position: relative;
+                      background: ${bg ? `url('${bg}')` : '#f3f4f6'};
+                      background-size: cover; background-position: center;
+                      font-family: ${ff}; color: ${fc};">
+            
+            <!-- Email with position -->
+            <div style="position: absolute; 
+                        left: ${positionsBack.email.x}%; top: ${positionsBack.email.y}%;
+                        font-size: ${backSizes.email}px;">
+              <span style="color: ${accent}; margin-right: 10px;">✉</span>
+              ${data.email || 'email@example.com'}
+            </div>
+            
+            <!-- Phone with position -->
+            <div style="position: absolute; 
+                        left: ${positionsBack.phone.x}%; top: ${positionsBack.phone.y}%;
+                        font-size: ${backSizes.phone}px;">
+              <span style="color: ${accent}; margin-right: 10px;">✆</span>
+              ${data.phone || '+91 00000 00000'}
+            </div>
+            
+            ${data.website ? `
+            <!-- Website with position -->
+            <div style="position: absolute; 
+                        left: ${positionsBack.website.x}%; top: ${positionsBack.website.y}%;
+                        font-size: ${backSizes.website}px;">
+              <span style="color: ${accent}; margin-right: 10px;">⌂</span>
+              ${data.website}
+            </div>
+            ` : ''}
+            
+            ${data.address ? `
+            <!-- Address with position -->
+            <div style="position: absolute; 
+                        left: ${positionsBack.address.x}%; top: ${positionsBack.address.y}%;
+                        font-size: ${backSizes.address}px;">
+              <span style="color: ${accent}; margin-right: 10px;">📍</span>
+              ${data.address}
+            </div>
+            ` : ''}
+            
+            <!-- QR Code with position -->
+            <div style="position: absolute; 
+                        left: ${positionsBack.qr.x}%; top: ${positionsBack.qr.y}%;
+                        background: white; padding: 10px; border-radius: 8px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+              <img src="${qrDataUrl}" alt="QR Code" 
+                   style="width: ${backSizes.qr}px; height: ${backSizes.qr}px;"
+                   crossorigin="anonymous" />
+            </div>
+          </div>
+        `;
+      }
+
+      document.body.appendChild(tempDiv);
+
+      // Wait for images to load
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const canvas = await html2canvas(tempDiv, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+        allowTaint: true
+      } as any);
+
+      document.body.removeChild(tempDiv);
+      return canvas.toDataURL('image/png', 1.0);
+    };
+
+    try {
+      const frontImage = await createCardSideHTML('front');
+      const backImage = await createCardSideHTML('back');
+      
+      return {
+        front: frontImage,
+        back: backImage,
+        thumbnail: frontImage 
+      };
+    } catch (error) {
+      console.error('Error generating card images:', error);
+      const fallback = createFallbackImage(data.name || 'Business Card');
+      return {
+        front: fallback,
+        back: fallback,
+        thumbnail: fallback
+      };
+    }
+  };
+
+const addToCart = async () => {
+    setIsUploading(true);
+    
+    try {
+      const isServer = selectedTemplate.startsWith("sb:");
+      const serverId = isServer ? selectedTemplate.slice(3) : "";
+      const st = isServer ? sbTemplates.find(x => x.id === serverId) : undefined;
+      const classicConfig = !isServer ? classicTemplates.find(t => t.id === selectedTemplate) : undefined;
+
+      const price = (isServer && st?.price) ? st.price : (pricePerItem || DEFAULT_PRICE);
+
+      // Step 1: Generate card images (Base64)
+      const { front: frontBase64, back: backBase64, thumbnail: thumbnailBase64 } = await generateCardImages();
+      
+      // Step 2: Upload images to Cloudinary
+      let frontImageUrl = '';
+      let backImageUrl = '';
+      let thumbnailUrl = '';
+      
+      try {
+        frontImageUrl = await uploadImageToCloudinary(frontBase64);
+        backImageUrl = await uploadImageToCloudinary(backBase64);
+        thumbnailUrl = await uploadImageToCloudinary(thumbnailBase64);
+        
+        if (!frontImageUrl || !backImageUrl) {
+          throw new Error("Failed to upload images to Cloudinary");
+        }
+      } catch (uploadError) {
+        console.error('Cloudinary upload error:', uploadError);
+        // Fallback to Base64 if upload fails
+        frontImageUrl = frontBase64;
+        backImageUrl = backBase64;
+        thumbnailUrl = thumbnailBase64;
+      }
+
+      // Structure for frontData (Positions & Sizes)
       const frontDataPayload = {
         positions: positions,
         sizes: sizes,
@@ -449,9 +682,9 @@ const addToCart = async () => {
         isEditLayout: isEditLayout
       };
 
-    // ✅ FIX: Generate vCard FIRST, before using it
-    const generateVCard = () => {
-      return `BEGIN:VCARD
+      // Generate vCard for QR code data
+      const generateVCard = () => {
+        return `BEGIN:VCARD
 VERSION:3.0
 FN:${data.name || 'Your Name'}
 TITLE:${data.title || 'Job Title'}
@@ -461,285 +694,99 @@ TEL:${data.phone || '+91 00000 00000'}
 URL:${data.website || 'your-website.com'}
 ADR:${data.address || 'Your Address, City'}
 END:VCARD`;
-    };
+      };
 
-    // ✅ DECLARE vCard here (BEFORE using it)
-    let vCard = "";
-    let qrDataUrl = "";
-    
-    // Generate QR code if needed
-    if (isServer || classicConfig) {
-      const QRCode = (await import('qrcode')).default;
-      vCard = generateVCard();
-      const qrColorFromConfig = isServer ? (st?.config?.qrColor || "#000000") : "#000000";
-      
-      qrDataUrl = await QRCode.toDataURL(vCard, {
-        width: 200,
-        margin: 1,
-        color: {
-          dark: qrColorFromConfig,
-          light: "#FFFFFF"
-        }
-      });
-    }
+      const vCard = generateVCard();
+      const qrColor = isServer ? (st?.config?.qrColor || "#000000") : "#000000";
 
-    // ✅ NOW you can use vCard safely
-    const designData = {
-      positions,
-      sizes,
-      positionsBack,
-      backSizes,
-      font: selectedFont,
-      fontSize,
-      textColor,
-      accentColor,
-      isEditLayout: isEditLayout,
-      qrColor: isServer ? (st?.config?.qrColor || "#000000") : "#000000",
-      qrLogoUrl: isServer ? st?.config?.qrLogoUrl : undefined,
-      qrData: vCard, // ✅ Now vCard is defined
-    };
-    let frontImageUrl = '';
-    let backImageUrl = '';
-    let thumbnailUrl = '';
-
-    // Generate QR code
-    const QRCode = (await import('qrcode')).default;
-    // const vCard = generateVCard();
-    const qrColorFromConfig = isServer ? (st?.config?.qrColor || "#000000") : "#000000";
-    
-    // const qrDataUrl = await QRCode.toDataURL(vCard, {
-    //   width: 200,
-    //   margin: 1,
-    //   color: {
-    //     dark: qrColorFromConfig,
-    //     light: "#FFFFFF"
-    //   }
-    // });
-
-    // Generate card images with PROPER POSITIONS
-    const generateCardImage = async (side: 'front' | 'back'): Promise<string> => {
-      try {
-        const tempDiv = document.createElement('div');
-        tempDiv.style.position = 'fixed';
-        tempDiv.style.left = '-9999px';
-        tempDiv.style.width = '560px';
-        tempDiv.style.height = '320px';
-        tempDiv.style.zIndex = '-1000';
-        tempDiv.style.overflow = 'hidden';
-
-        if (side === 'front') {
-          // Front side with CURRENT positions
-          const bg = st?.background_url;
-          const cfg: any = st?.config || {};
-          const fc = hasOverrides ? textColor : (cfg.fontColor || "#000000");
-          const accent = hasOverrides ? accentColor : (cfg.accentColor || "#0ea5e9");
-          const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
-
-          tempDiv.innerHTML = `
-            <div style="width: 560px; height: 320px; position: relative;
-                        background: ${bg ? `url('${bg}')` : '#f3f4f6'};
-                        background-size: cover; background-position: center;">
-              ${data.logo ? `
-              <div style="position: absolute; 
-                          left: ${positions.logo.x}%; top: ${positions.logo.y}%;
-                          width: ${sizes.logo}px; height: ${sizes.logo}px;
-                          border-radius: 50%; overflow: hidden;
-                          border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-                <img src="${data.logo}" alt="Logo" 
-                     style="width: 100%; height: 100%; object-fit: cover;" 
-                     crossorigin="anonymous" />
-              </div>
-              ` : ''}
-              
-              <div style="position: absolute; 
-                          left: ${positions.name.x}%; top: ${positions.name.y}%;
-                          font-family: ${ff}; font-size: ${sizes.name}px; 
-                          color: ${fc}; font-weight: bold;">
-                ${data.name || 'Your Name'}
-              </div>
-              
-              <div style="position: absolute; 
-                          left: ${positions.title.x}%; top: ${positions.title.y}%;
-                          font-family: ${ff}; font-size: ${sizes.title}px; 
-                          color: ${accent};">
-                ${data.title || 'Job Title'}
-              </div>
-              
-              <div style="position: absolute; 
-                          left: ${positions.company.x}%; top: ${positions.company.y}%;
-                          font-family: ${ff}; font-size: ${sizes.company}px; 
-                          color: ${fc}; opacity: 0.8;">
-                ${data.company || 'Company'}
-              </div>
-            </div>
-          `;
-        } else {
-          // Back side with CURRENT positions - THIS IS CRITICAL
-          const bg = st?.back_background_url || st?.background_url;
-          const cfg: any = st?.config || {};
-          const fc = hasOverrides ? textColor : (cfg.fontColor || "#000000");
-          const accent = hasOverrides ? accentColor : (cfg.accentColor || "#0ea5e9");
-          const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
-
-          tempDiv.innerHTML = `
-            <div style="width: 560px; height: 320px; position: relative;
-                        background: ${bg ? `url('${bg}')` : '#f3f4f6'};
-                        background-size: cover; background-position: center;
-                        font-family: ${ff}; color: ${fc};">
-              
-              <!-- Email with position -->
-              <div style="position: absolute; 
-                          left: ${positionsBack.email.x}%; top: ${positionsBack.email.y}%;
-                          font-size: ${backSizes.email}px;">
-                <span style="color: ${accent}; margin-right: 10px;">✉</span>
-                ${data.email || 'email@example.com'}
-              </div>
-              
-              <!-- Phone with position -->
-              <div style="position: absolute; 
-                          left: ${positionsBack.phone.x}%; top: ${positionsBack.phone.y}%;
-                          font-size: ${backSizes.phone}px;">
-                <span style="color: ${accent}; margin-right: 10px;">✆</span>
-                ${data.phone || '+91 00000 00000'}
-              </div>
-              
-              ${data.website ? `
-              <!-- Website with position -->
-              <div style="position: absolute; 
-                          left: ${positionsBack.website.x}%; top: ${positionsBack.website.y}%;
-                          font-size: ${backSizes.website}px;">
-                <span style="color: ${accent}; margin-right: 10px;">⌂</span>
-                ${data.website}
-              </div>
-              ` : ''}
-              
-              ${data.address ? `
-              <!-- Address with position -->
-              <div style="position: absolute; 
-                          left: ${positionsBack.address.x}%; top: ${positionsBack.address.y}%;
-                          font-size: ${backSizes.address}px;">
-                <span style="color: ${accent}; margin-right: 10px;">📍</span>
-                ${data.address}
-              </div>
-              ` : ''}
-              
-              <!-- QR Code with position -->
-              <div style="position: absolute; 
-                          left: ${positionsBack.qr.x}%; top: ${positionsBack.qr.y}%;
-                          background: white; padding: 10px; border-radius: 8px;
-                          box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                <img src="${qrDataUrl}" alt="QR Code" 
-                     style="width: ${backSizes.qr}px; height: ${backSizes.qr}px;"
-                     crossorigin="anonymous" />
-              </div>
-            </div>
-          `;
-        }
-
-        document.body.appendChild(tempDiv);
-
-        // Wait for images to load
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const canvas = await html2canvas(tempDiv, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: null,
-          logging: false,
-          allowTaint: true
-        } as any);
-
-        document.body.removeChild(tempDiv);
-        return canvas.toDataURL('image/png', 1.0);
-
-      } catch (error) {
-        console.error('Image generation error:', error);
-        return createFallbackImage(side === 'front' ? 'Card Front' : 'Card Back');
-      }
-    };
-
-     let fImg = '', bImg = '';
-      try {
-         fImg = await generateCardImage('front');
-         bImg = await generateCardImage('back');
-      } catch(e) {
-         console.error("Image gen error", e);
-      }
-
-    // Generate images
-    try {
-      frontImageUrl = await generateCardImage('front');
-      backImageUrl = await generateCardImage('back');
-      thumbnailUrl = frontImageUrl;
-    } catch (error) {
-      console.error('Failed to generate images:', error);
-      frontImageUrl = await createFallbackImage(data.name || 'Business Card');
-      backImageUrl = await createFallbackImage(`${data.name || 'Card'} Back`);
-      thumbnailUrl = frontImageUrl;
-    }
-
-    // Add to cart with ALL design data
-    cartCtx.add({
-      id: selectedTemplate,
-      productId: selectedTemplate,
-      kind: isServer ? "server" : "classic",
-      data: data,
-      selectedFont,
-      fontSize,
-      textColor,
-      accentColor,
-      price: price,
-      frontImageUrl: fImg, 
-        backImageUrl: bImg,
-        thumbnailUrl: fImg,
- frontData: frontDataPayload,
-        backData: backDataPayload,
-      serverMeta: isServer ? {
-        name: st?.name,
-        background_url: st?.background_url,
-        back_background_url: st?.back_background_url,
-        config: st?.config,
-        qrColor: isServer ? (st?.config?.qrColor || "#000000") : "#000000",
+      const designData = {
+        positions,
+        sizes,
+        positionsBack,
+        backSizes,
+        font: selectedFont,
+        fontSize,
+        textColor,
+        accentColor,
+        isEditLayout: isEditLayout,
+        qrColor: qrColor,
         qrLogoUrl: isServer ? st?.config?.qrLogoUrl : undefined,
-      } : undefined,
-      
-      // ✅ CRITICAL: Save ALL design data
-      design: designData,
-      
-      // ✅ Save generated images
-      // frontImageUrl,
-      // backImageUrl,
-      // thumbnailUrl,
-      frontImageUrl: frontImageUrl, 
-        backImageUrl: backImageUrl,
-        thumbnailUrl: frontImageUrl,
-      
-      quantity: 1,
-      
-    });
+        qrData: vCard,
+      };
 
-    alert('Item added to cart successfully!');
-    navigate("/cart");
+      // Step 3: Add to cart with Cloudinary URLs
+      cartCtx.add({
+        id: selectedTemplate,
+        productId: selectedTemplate,
+        kind: isServer ? "server" : "classic",
+        data: data,
+        selectedFont,
+        fontSize,
+        textColor,
+        accentColor,
+        price: price,
+        frontImageUrl: frontImageUrl, // Cloudinary URL
+        backImageUrl: backImageUrl,   // Cloudinary URL
+        thumbnailUrl: thumbnailUrl,   // Cloudinary URL
+        frontData: frontDataPayload,
+        backData: backDataPayload,
+        serverMeta: isServer ? {
+          name: st?.name,
+          background_url: st?.background_url,
+          back_background_url: st?.back_background_url,
+          config: st?.config,
+          qrColor: qrColor,
+          qrLogoUrl: isServer ? st?.config?.qrLogoUrl : undefined,
+        } : undefined,
+        design: designData,
+        quantity: 1,
+      });
 
-  } catch (error) {
-    console.error('Error adding to cart:', error);
-    alert('Failed to add item to cart. Please try again.');
-  }
-};
+      // Step 4: Navigate to cart
+      setShowCartSuccess(true);
+setTimeout(() => {
+  setShowCartSuccess(false);
+  navigate("/cart");
+}, 2000); // Auto-close after 2 seconds and navigate
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      alert('Failed to add item to cart. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
-
-  const buyCurrent = () => {
+  const buyCurrent = async () => {
+    setIsUploading(true);
+    
     try {
       if (!selectedTemplate) return;
 
       const isServer = selectedTemplate.startsWith("sb:");
       const serverId = isServer ? selectedTemplate.slice(3) : "";
-      const st = isServer
-        ? sbTemplates.find((x) => x.id === serverId)
-        : undefined;
+      const st = isServer ? sbTemplates.find((x) => x.id === serverId) : undefined;
 
-      const price =
-        (isServer ? st?.price : undefined) ?? DEFAULT_PRICE;
+      const price = (isServer ? st?.price : undefined) ?? DEFAULT_PRICE;
+
+      // Step 1: Generate card images
+      const { front: frontBase64, back: backBase64 } = await generateCardImages();
+      
+      // Step 2: Upload to Cloudinary
+      let frontImageUrl = '';
+      let backImageUrl = '';
+      
+      try {
+        frontImageUrl = await uploadImageToCloudinary(frontBase64);
+        backImageUrl = await uploadImageToCloudinary(backBase64);
+        
+        if (!frontImageUrl || !backImageUrl) {
+          throw new Error("Failed to upload images to Cloudinary");
+        }
+      } catch (uploadError) {
+        console.error('Cloudinary upload error:', uploadError);
+        frontImageUrl = frontBase64;
+        backImageUrl = backBase64;
+      }
 
       const designFront = {
         positions,
@@ -750,6 +797,7 @@ END:VCARD`;
         accentColor,
         isEditLayout,
       };
+      
       const designBack = {
         positionsBack,
         backSizes,
@@ -760,6 +808,7 @@ END:VCARD`;
         isEditLayout,
       };
 
+      // Step 3: Add to cart with Cloudinary URLs
       cartCtx.add({
         id: selectedTemplate,
         kind: isServer ? "server" : "classic",
@@ -769,38 +818,29 @@ END:VCARD`;
         textColor,
         accentColor,
         price,
-        serverMeta: isServer
-          ? {
-            name: st?.name,
-            background_url: st?.background_url,
-            back_background_url: st?.back_background_url,
-            config: st?.config,
-          }
-          : undefined,
+        frontImageUrl: frontImageUrl, // Cloudinary URL
+        backImageUrl: backImageUrl,   // Cloudinary URL
+        thumbnailUrl: frontImageUrl,  // Use front as thumbnail
+        serverMeta: isServer ? {
+          name: st?.name,
+          background_url: st?.background_url,
+          back_background_url: st?.back_background_url,
+          config: st?.config,
+        } : undefined,
         frontData: designFront,
         backData: designBack,
-        quantity: undefined,
-        productId: undefined
+        quantity: 1,
+        productId: selectedTemplate
       });
 
+      // Step 4: Navigate to checkout
       navigate("/checkout");
     } catch (e: any) {
+      console.error('Checkout error:', e);
       alert(e.message || "Unable to start checkout");
+    } finally {
+      setIsUploading(false);
     }
-  };
-
-  // Generate vCard string for QR code
-  const generateVCard = () => {
-    return `BEGIN:VCARD
-VERSION:3.0
-FN:${data.name || 'Your Name'}
-TITLE:${data.title || 'Job Title'}
-ORG:${data.company || 'Company'}
-EMAIL:${data.email || 'email@example.com'}
-TEL:${data.phone || '+91 00000 00000'}
-URL:${data.website || 'your-website.com'}
-ADR:${data.address || 'Your Address, City'}
-END:VCARD`;
   };
 
   return (
@@ -810,62 +850,24 @@ END:VCARD`;
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-0">
             <h2 className="text-xl font-bold text-foreground">Preview</h2>
             <div className="flex flex-nowrap items-center justify-end gap-2 w-full overflow-x-auto scrollbar-hide py-1">
-              {/* <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditLayout(!isEditLayout)}
-                className="gap-1.5 text-xs sm:text-sm px-2 sm:px-4 py-1 sm:py-2"
-              >
-                {isEditLayout ? 'Save Layout' : 'Edit Layout'}
-              </Button> */}
-
-              {/* <Button
-                variant="outline"
-                size="sm"
-                onClick={async () => {
-                  try {
-                    setIsSaving(true);
-                    const designState = {
-                      templateId: selectedTemplate,
-                      positions: isEditLayout ? positions : undefined,
-                      backPositions: isEditLayout ? positionsBack : undefined,
-                      font: selectedFont,
-                      fontSize,
-                      textColor,
-                      accentColor,
-                      timestamp: new Date().toISOString()
-                    };
-                    console.log('Saving design:', designState);
-                    alert('Design saved successfully!');
-                  } catch (error) {
-                    console.error('Error saving design:', error);
-                    alert('Failed to save design. Please try again.');
-                  } finally {
-                    setIsSaving(false);
-                  }
-                }}
-                disabled={isSaving}
-                className="gap-1.5 text-xs sm:text-sm px-2 sm:px-4 py-1 sm:py-2"
-              >
-                {isSaving ? 'Saving...' : 'Save Design'}
-              </Button> */}
-
               <Button
                 onClick={buyCurrent}
                 size="sm"
                 variant="default"
+                disabled={isUploading}
                 className="gap-1.5 text-xs sm:text-sm px-2 sm:px-4 py-1 sm:py-2"
               >
-                Buy
+                {isUploading ? 'Processing...' : 'Buy'}
               </Button>
 
               <Button
                 onClick={addToCart}
                 variant="outline"
                 size="sm"
+                disabled={isUploading}
                 className="gap-1.5 text-xs sm:text-sm px-2 sm:px-4 py-1 sm:py-2"
               >
-                Cart
+                {isUploading ? 'Adding...' : 'Add to Cart'}
               </Button>
             </div>
           </div>
@@ -950,6 +952,10 @@ END:VCARD`;
               {(() => {
                 const isServer = selectedTemplate.startsWith("sb:");
                 if (!isServer) {
+                  function generateVCard(): string | string[] {
+                    throw new Error("Function not implemented.");
+                  }
+
                   return (
                     <>
                       <div
@@ -1225,6 +1231,9 @@ END:VCARD`;
                 const ff = hasOverrides ? selectedFont : (cfg.fontFamily || "Inter, Arial, sans-serif");
                 const qrLogoUrl = cfg.qrLogoUrl;
                 const qrColor = cfg.qrColor || "#000000";
+
+                const generateVCard = (): string => generateVCard1();
+
 
                 return (
                   <>
@@ -1847,7 +1856,7 @@ END:VCARD`;
                                 </p>
                                 {item.server?.price && (
                                   <p className="text-white/90 text-xs">
-                                    ${item.server.price.toFixed(2)}
+                                    ₹{item.server.price.toFixed(2)}
                                   </p>
                                 )}
                               </div>
@@ -1886,6 +1895,18 @@ END:VCARD`;
                 </Button>
               </div>
             )}
+            {/* Success Modal */}
+<Dialog open={showCartSuccess} onOpenChange={setShowCartSuccess}>
+  <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-lg bg-white p-6 shadow-lg">
+    <div className="flex flex-col items-center justify-center space-y-4">
+      <div className="rounded-full bg-green-100 p-3">
+        <Check className="h-6 w-6 text-green-600" />
+      </div>
+      <h3 className="text-lg font-medium text-gray-900">Success!</h3>
+      <p className="text-gray-600">Item added to cart successfully!</p>
+    </div>
+  </DialogContent>
+</Dialog>
           </>
         )}
       </div>
@@ -1895,38 +1916,45 @@ END:VCARD`;
 
 
 const createFallbackImage = (text: string, width = 560, height = 320): string => {
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  
-  if (!ctx) return '';
-  
-  // Create gradient background
-  const gradient = ctx.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, '#f3f4f6');
-  gradient.addColorStop(1, '#e5e7eb');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
-  
-  // Add border
-  ctx.strokeStyle = '#d1d5db';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(1, 1, width - 2, height - 2);
-  
-  // Add text
-  ctx.fillStyle = '#374151';
-  ctx.font = 'bold 20px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText(text, width / 2, height / 2 - 20);
-  
-  ctx.font = '14px Arial';
-  ctx.fillStyle = '#6b7280';
-  ctx.fillText('Image Preview', width / 2, height / 2 + 10);
-  
-  return canvas.toDataURL('image/png');
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) return '';
+    
+    // Create gradient background
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, '#f3f4f6');
+    gradient.addColorStop(1, '#e5e7eb');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    
+    // Add border
+    ctx.strokeStyle = '#d1d5db';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1, 1, width - 2, height - 2);
+    
+    // Add text
+    ctx.fillStyle = '#374151';
+    ctx.font = 'bold 20px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(text, width / 2, height / 2 - 20);
+    
+    ctx.font = '14px Arial';
+    ctx.fillStyle = '#6b7280';
+    ctx.fillText('Image Preview', width / 2, height / 2 + 10);
+    
+    return canvas.toDataURL('image/png');
+  } catch (error) {
+    console.error('Error creating fallback image:', error);
+    return '';
+  }
 };
 
-// function createFallbackImage(arg0: string): string | PromiseLike<string> {
-//   throw new Error("Function not implemented.");
-// }
+
+
+function uploadImageToCloudinary(frontBase64: string): string | PromiseLike<string> {
+  throw new Error("Function not implemented.");
+}
