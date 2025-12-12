@@ -9,7 +9,7 @@ const MyAccount: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#EFECE3] to-[#8FABD4] py-12">
+    <div className="min-h-screen bg-gradient-to-br from-[#f2f6f7] py-12">
       <div className="max-w-4xl mx-auto p-6">
 
         {/* Header Section */}

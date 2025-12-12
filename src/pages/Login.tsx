@@ -40,8 +40,32 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+// Validate name and phone before sending OTP
+    if (!name.trim()) {
+      setError("Name is required");
+      setLoading(false);
+      return;
+    }
+    
+    if (!phone.trim()) {
+      setError("Phone number is required");
+      setLoading(false);
+      return;
+    }
+    
+    // Validate phone number format
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+      setError("Please enter a valid 10-digit phone number");
+      setLoading(false);
+      return;
+    }
+
+
+
     try {
-      const { error } = await requestSignupOTP(email);
+      const { error } = await requestSignupOTP(email, name, phone);
       if (error) {
         setError(error);
       } else {
@@ -63,8 +87,17 @@ const Login = () => {
       if (error) {
         setError(error);
       } else {
+        // ✅ Signup successful - automatically login
+      const loginResult = await signIn(email, password);
+            if (loginResult.error) {
+        setError(loginResult.error);
+      } else {
+        // ✅ Success - redirect to home/dashboard
         navigate(from, { replace: true });
       }
+    }
+
+      
     } catch (e: any) {
       setError(e.message || "Verification failed");
     } finally {
@@ -86,6 +119,8 @@ const Login = () => {
               setIsSignup(!isSignup);
               setOtpSent(false);
               setError(null);
+               setName("");
+              setPhone("");
             }}
             className="text-sm sm:text-base underline hover:text-blue-700 transition-colors"
           >
@@ -107,9 +142,66 @@ const Login = () => {
           />
         </div>
 
+
+         {isSignup && !otpSent && (
+          <>
+            {/* Name field - OTP bhejne se pehle */}
+            <div className="space-y-2">
+              <label className="text-sm sm:text-base font-medium">Full Name</label>
+              <input
+                className="w-full border rounded-lg px-3 py-3 sm:py-4 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="Enter your full name"
+              />
+            </div>
+            
+            {/* Phone number field - OTP bhejne se pehle */}
+            <div className="space-y-2">
+              <label className="text-sm sm:text-base font-medium">Phone Number</label>
+              <input
+                className="w-full border rounded-lg px-3 py-3 sm:py-4 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+                placeholder="Enter your 10-digit phone number"
+                maxLength={10}
+              />
+              <p className="text-xs text-gray-500">10-digit mobile number without country code</p>
+            </div>
+          </>
+        )}
+
         {isSignup ? (
           otpSent ? (
             <>
+
+ {/* OTP ke baad bhi name aur phone show karein (readonly) */}
+              <div className="space-y-2">
+                <label className="text-sm sm:text-base font-medium">Name</label>
+                <input
+                  className="w-full border rounded-lg px-3 py-3 sm:py-4 text-sm sm:text-base bg-gray-50"
+                  type="text"
+                  value={name}
+                  readOnly
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm sm:text-base font-medium">Phone No.</label>
+                <input
+                  className="w-full border rounded-lg px-3 py-3 sm:py-4 text-sm sm:text-base bg-gray-50"
+                  type="tel"
+                  value={phone}
+                  readOnly
+                />
+              </div>
+
+
+
               <div className="space-y-2">
                 <label className="text-sm sm:text-base font-medium">OTP</label>
                 <input

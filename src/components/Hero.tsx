@@ -27,8 +27,10 @@ const slides = [
   },
 ];
 
-
-export const Hero = () => {
+interface HeroProps {
+  id?: string;  
+}
+export const Hero = ({ id }: HeroProps) => {
   const [index, setIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
@@ -52,7 +54,7 @@ export const Hero = () => {
   const prev = () => setIndex((i) => (i - 1 + slides.length) % slides.length);
 
   return (
-    <section className="relative w-full h-[89vh] md:h-[92vh] pt-20 overflow-hidden select-none"
+    <section id={id} className="relative w-full h-[89vh] md:h-[92vh] pt-20 overflow-hidden select-none"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}

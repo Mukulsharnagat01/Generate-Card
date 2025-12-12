@@ -69,9 +69,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled ? 'bg-white shadow-md' : 'bg-black/0'
-      }`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'bg-white shadow-md' : 'bg-black/0'
+        }`}>
         <div className="flex items-center justify-between px-4 py-4 md:px-8 lg:px-12 h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
@@ -84,6 +83,16 @@ const Index = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
+            <a
+              href="#hero"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className={navLinkClass}
+            >
+              Home
+            </a>
             <a href="#services" onClick={(e) => { e.preventDefault(); document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' }); }} className={navLinkClass}>
               Services
             </a>
@@ -187,7 +196,7 @@ const Index = () => {
         )}
       </header>
 
-      <Hero />
+      <Hero id="hero" />
       <PaymentBanner />
 
       <main className="container mx-auto max-w-7xl px-4 py-12">

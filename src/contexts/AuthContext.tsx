@@ -10,24 +10,22 @@ type AuthUser = {
   role?: "user" | "admin";
 };
 
-
 type AuthContextType = {
   user: AuthUser | null;
   profile: AuthUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  requestSignupOTP: (email: string) => Promise<{ error: string | null }>;
+  requestSignupOTP: (email: string, name: string, phone: string) => Promise<{ error: string | null }>;
   verifySignupOTP: (email: string, otp: string, password: string, name: string, phone: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+  updateProfile: (profileData: { name: string; phone: string }) => Promise<{ error: string | null }>;
 };
-
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<AuthUser | null>(null);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,8 +40,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const u = me.user as AuthUser;
         setUser(u);
         setProfile(u);
-
       } catch {
+        // If token is invalid, clear it
+        localStorage.removeItem("token");
       } finally {
         setLoading(false);
       }
@@ -57,7 +56,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loading,
     signIn: async (email: string, password: string) => {
       try {
-        const res = await apiFetch("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+        const res = await apiFetch("/auth/login", { 
+          method: "POST", 
+          body: JSON.stringify({ email, password }) 
+        });
         localStorage.setItem("token", res.token);
         const u = res.user as AuthUser;
         setUser(u);
@@ -67,18 +69,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { error: e.message ?? "Login failed" };
       }
     },
-    requestSignupOTP: async (email: string) => {
+    
+    requestSignupOTP: async (email: string, name: string, phone: string) => {
       try {
-        await apiFetch("/auth/send-signup-otp", { method: "POST", body: JSON.stringify({ email }) });
+        await apiFetch("/auth/send-signup-otp", { 
+          method: "POST", 
+          body: JSON.stringify({ email, name, phone }) 
+        });
         return { error: null };
       } catch (e: any) {
         return { error: e.message ?? "Failed to send OTP" };
       }
     },
+    
     verifySignupOTP: async (email: string, otp: string, password: string, name: string, phone: string) => {
       try {
-        const res = await apiFetch("/auth/verify-signup-otp", { method: "POST", body: JSON.stringify({ email, otp, password, name, phone }) });
+        const res = await apiFetch("/auth/verify-signup-otp", { 
+          method: "POST", 
+          body: JSON.stringify({ email, otp, password, name, phone }) 
+        });
         localStorage.setItem("token", res.token);
+        // mnjjkjk
+        localStorage.setItem("user", JSON.stringify(res.user));
+        // jnjkmkmk
         const u = res.user as AuthUser;
         setUser(u);
         setProfile(u);
@@ -87,10 +100,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { error: e.message ?? "Verification failed" };
       }
     },
+    
+    updateProfile: async (profileData: { name: string; phone: string }): Promise<{ error: string | null }> => {
+  try {
+    const res = await apiFetch("/auth/update-profile", { 
+      method: "PUT",
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify(profileData) 
+    });
+    
+    if (!user) {
+      return { error: "User not authenticated" };
+    }
+    
+    // Update local user data
+    const updatedUser = { ...user, ...res.user } as AuthUser;
+    setUser(updatedUser);
+    setProfile(updatedUser);
+    
+    // Update localStorage
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    localStorage.setItem('user', JSON.stringify({ ...currentUser, ...res.user }));
+    
+    return { error: null };
+  } catch (e: any) {
+    return { error: e.message ?? "Failed to update profile" };
+  }
+},
+    
     signOut: async () => {
-      localStorage.removeItem("token");
-      setUser(null);
-      setProfile(null);
+      try {
+        await apiFetch("/auth/logout", { method: "POST" });
+      } catch (error) {
+        console.error("Logout error:", error);
+      } finally {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+        setProfile(null);
+      }
     },
   }), [user, profile, loading]);
 

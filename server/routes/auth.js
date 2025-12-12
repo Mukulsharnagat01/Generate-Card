@@ -6,7 +6,7 @@ import { authRequired } from '../middleware/auth.js';
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
-
+const otpStore = new Map();
 const router = express.Router();
 
 const transporter = nodemailer.createTransport({
@@ -104,8 +104,8 @@ router.post('/login', async (req, res) => {
 // Send OTP for signup
 router.post('/send-signup-otp', async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email is required' });
+    const { email, name, phone  } = req.body;
+    if (!email) return res.status(400).json({ error: 'All field is required' });
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -117,6 +117,14 @@ router.post('/send-signup-otp', async (req, res) => {
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
 
+
+     // ✅ OTP store mein save karein with user details
+    otpStore.set(email, {
+      otp,
+      otpExpiry,
+      name,
+      phone
+    });
     // For new users, we'll store the OTP in a temporary user document
     await User.findOneAndUpdate(
       { email },
@@ -303,6 +311,7 @@ router.post("/request-reset", async (req, res) => {
     user.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
     await user.save();
 
+    // const resetLink = http://localhost:8080/reset-password?token=${token};
     const resetLink = `http://localhost:8080/reset-password?token=${token}`;
 
     await transporter.sendMail({
@@ -370,10 +379,67 @@ console.log("PASSWORD RECEIVED:", password);
 
 
 router.get('/me', authRequired, async (req, res) => {
-  res.json({ user: { id: req.user._id, email: req.user.email, role: req.user.role } });
+  res.json({ user: { id: req.user._id, email: req.user.email, role: req.user.role ,
+    name: req.user.name, 
+      phone: req.user.phone, 
+  } });
 });
 
 
 
 
 export default router;
+
+
+
+
+
+
+
+
+
+
+// Update user profile
+router.put('/update-profile', authRequired, async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+    
+    if (!name || !phone) {
+      return res.status(400).json({ 
+        error: 'Name and phone are required' 
+      });
+    }
+
+    // ✅ Validate phone number
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({ 
+        error: 'Please enter a valid 10-digit phone number' 
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, phone },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('Error in update-profile:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
